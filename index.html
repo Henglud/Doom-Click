@@ -1,0 +1,912 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>DOOM CLICK</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Arial,sans-serif;background:#09051a;color:#fff}
+body{background:radial-gradient(circle at 50% 18%,#5b0a70 0,#24104e 28%,#0a0820 62%,#03030a 100%);background-attachment:fixed}body:before{content:'';position:fixed;inset:0;pointer-events:none;z-index:-1;background:radial-gradient(circle at 20% 20%,rgba(255,45,170,.16),transparent 28%),radial-gradient(circle at 80% 30%,rgba(39,220,255,.12),transparent 30%),linear-gradient(135deg,transparent 0 48%,rgba(255,255,255,.018) 50%,transparent 52%);background-size:auto,auto,32px 32px}
+button{font:inherit;color:#fff;border:0;cursor:pointer;touch-action:manipulation}
+#app{height:100%;display:flex;flex-direction:column;position:relative}
+header{height:78px;padding:10px 18px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(90deg,rgba(14,5,35,.92),rgba(40,7,58,.82),rgba(8,10,34,.92));border-bottom:1px solid rgba(238,84,255,.45);box-shadow:0 8px 35px rgba(0,0,0,.35),0 1px 0 rgba(255,255,255,.05) inset;backdrop-filter:blur(14px);position:relative;z-index:2}
+.logo{font-size:30px;font-weight:1000;letter-spacing:4px;background:linear-gradient(90deg,#fff,#ff64dc 42%,#64edff);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 24px rgba(255,68,220,.45);filter:drop-shadow(0 0 8px rgba(160,80,255,.3))}
+.stats{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}.pill{padding:10px 14px;border-radius:15px;background:linear-gradient(135deg,rgba(52,21,89,.9),rgba(24,13,55,.95));border:1px solid rgba(180,91,255,.6);font-weight:900;box-shadow:0 0 18px rgba(124,61,255,.2),inset 0 1px 0 rgba(255,255,255,.08)}.crystal{color:#bffcff;text-shadow:0 0 10px #36eaff}
+main{flex:1;display:grid;grid-template-columns:235px 1fr 235px;gap:18px;padding:16px;min-height:0}
+.panel{background:linear-gradient(180deg,rgba(24,10,49,.88),rgba(10,7,25,.78));border:1px solid rgba(147,69,225,.5);border-radius:22px;padding:13px;overflow:auto;box-shadow:0 18px 45px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.04)}
+.panel h2{font-size:15px;margin:4px 0 10px;color:#dfb8ff;text-transform:uppercase;letter-spacing:1px}
+.upgrade{width:100%;text-align:left;padding:11px;margin:7px 0;border-radius:13px;background:linear-gradient(135deg,#271052,#3c1661);border:1px solid #8b4dcc}.upgrade:active{transform:scale(.98)}.upgrade:hover{filter:brightness(1.2);transform:translateY(-1px)}
+.upgrade small{display:block;color:#cbb5d9;margin-top:4px;line-height:1.25}.upgrade b{display:block;font-size:14px}
+.center{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;padding:8px 10px}
+.level{font-weight:900;color:#e9d0ff;font-size:18px}.bar{width:min(600px,85%);height:13px;background:#160b29;border-radius:20px;overflow:hidden;border:1px solid #6539a0;margin:8px 0 15px}.fill{height:100%;width:0;background:linear-gradient(90deg,#ff35ca,#6c5cff,#39f6ff);box-shadow:0 0 16px #ad6cff}
+.doom{width:min(330px,65vw);height:min(330px,65vw);border-radius:50%;position:relative;background:radial-gradient(circle at 35% 28%,#ffcb5c 0 5%,#d83850 7%,#721d65 32%,#250c4b 67%,#0b051a 100%);border:7px solid #bd54ff;box-shadow:0 0 30px #d447ff,0 0 90px #6a36ff66,inset 0 0 40px #ff265a66;display:flex;align-items:center;justify-content:center;user-select:none;touch-action:manipulation;transition:transform .08s}
+.doom:after{content:"";position:absolute;inset:18px;border-radius:50%;border:2px dashed #ffb7ff55;animation:spin 12s linear infinite}.doom span{font-size:58px;filter:drop-shadow(0 0 12px #ffda7a);z-index:1}.doom.hit{transform:scale(.95) rotate(-1deg)}
+@keyframes spin{to{transform:rotate(360deg)}} .float{position:absolute;font-weight:900;font-size:22px;pointer-events:none;animation:float 850ms ease-out forwards;text-shadow:0 0 10px #fff}
+@keyframes float{0%{opacity:1;transform:translate(-50%,0) scale(1)}100%{opacity:0;transform:translate(-50%,-90px) scale(1.25)}}
+.big{font-size:34px;font-weight:1000;margin:8px;text-shadow:0 0 18px rgba(255,255,255,.12)}.sub{color:#d7c6e8;margin-bottom:8px;font-weight:700}.actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:16px}
+.action{padding:12px 16px;border-radius:14px;background:linear-gradient(135deg,#7436ff,#d72cff 48%,#ff3b91);box-shadow:0 8px 28px rgba(141,55,255,.28),inset 0 1px 0 rgba(255,255,255,.18);font-weight:1000;border:1px solid rgba(255,255,255,.12);transition:transform .15s,filter .15s,box-shadow .15s}.action:hover{filter:brightness(1.14);transform:translateY(-2px);box-shadow:0 12px 34px rgba(210,45,255,.35)}.action:disabled{opacity:.4;cursor:not-allowed}
+.event{margin-top:12px;width:min(650px,90%);padding:12px;border-radius:16px;text-align:center;background:linear-gradient(90deg,#43116a,#74145d);border:1px solid #e05cff;animation:pulse 1.3s infinite}.event b{display:block;font-size:18px}@keyframes pulse{50%{box-shadow:0 0 25px #f24cff66}}
+#toast{position:fixed;left:50%;top:82px;transform:translateX(-50%);z-index:30;padding:13px 20px;border-radius:15px;background:#241044;border:1px solid #d96cff;opacity:0;pointer-events:none;transition:.25s;text-align:center;font-weight:900}#toast.show{opacity:1}
+.modal{position:fixed;inset:0;background:#03010bcc;display:none;align-items:center;justify-content:center;z-index:20;padding:15px}.modal.open{display:flex}.box{width:min(620px,95vw);max-height:90vh;overflow:auto;background:#140a28;border:1px solid #a654e9;border-radius:22px;padding:20px;box-shadow:0 0 70px #8b37ff66}.box h1{margin-top:0}.close{float:right;background:#3b1c55;padding:7px 12px;border-radius:10px}.achievement{display:flex;justify-content:space-between;gap:10px;padding:10px;margin:7px 0;border-radius:12px;background:#211039;border:1px solid #4d2a68}.locked{opacity:.42}.wheelWrap{position:relative;width:292px;height:322px;margin:12px auto 16px;display:flex;align-items:flex-end;justify-content:center}.wheel{position:relative;width:270px;height:270px;border-radius:50%;border:9px solid #f3d7ff;background:conic-gradient(#ff3f9d 0 45deg,#713dff 45deg 90deg,#32dfff 90deg 135deg,#ffb52f 135deg 180deg,#ff3f9d 180deg 225deg,#713dff 225deg 270deg,#32dfff 270deg 315deg,#ffb52f 315deg 360deg);box-shadow:0 0 18px #ff5bd866,0 0 45px #7d3cff55,inset 0 0 0 3px #ffffff55;transition:transform 2.4s cubic-bezier(.12,.7,.15,1);overflow:visible}.wheel:before{content:"";position:absolute;inset:8px;border-radius:50%;border:2px dashed rgba(255,255,255,.75);pointer-events:none}.wheelCenter{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:58px;height:58px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle,#fff,#ffd86b 38%,#ff6bc7 100%);border:4px solid #fff;box-shadow:0 0 20px #fff,0 0 35px #ff5bc4;z-index:4;font-size:27px}.wheelLabel{position:absolute;left:50%;top:50%;width:54px;margin-left:-27px;margin-top:-27px;height:54px;display:flex;align-items:flex-start;justify-content:center;padding-top:8px;color:#fff;font-size:12px;font-weight:1000;text-shadow:0 2px 5px #000,0 0 8px #000;z-index:3;pointer-events:none;transform:rotate(var(--a)) translateY(-91px) rotate(calc(-1 * var(--a)));text-align:center}.wheelLabel b{display:block;line-height:1.05}.wheelDivider{position:absolute;left:50%;top:50%;width:2px;height:119px;transform-origin:50% 0;background:rgba(255,255,255,.55);z-index:2;pointer-events:none}.pointer{position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:8;width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-top:31px solid #fff;filter:drop-shadow(0 0 6px #fff) drop-shadow(0 3px 3px #000)}select{width:100%;padding:11px;background:#25113b;color:#fff;border:1px solid #7642a4;border-radius:10px;margin:6px 0 14px}
+@media(max-width:850px){
+ html,body{overflow:hidden}
+ header{height:64px;min-height:64px;padding:9px 10px;margin:0}
+ .logo{font-size:20px;letter-spacing:2.5px}
+ .stats{gap:5px;flex-wrap:nowrap}
+ .pill{padding:7px 8px;font-size:12px}
+ main{display:flex;flex-direction:column;gap:14px;padding:10px;overflow-y:auto;overflow-x:hidden;align-items:stretch}
+ .center{width:100%;flex:none;min-height:auto;padding:12px 4px 4px;justify-content:flex-start}
+ .panel{display:block;width:100%;flex:none;overflow:visible;padding:12px;border-radius:18px}
+ main>.panel:first-child{order:2}
+ main>.center{order:1}
+ main>.panel:last-child{order:3}
+ .doom{width:min(70vw,300px);height:min(70vw,300px);flex:none}
+ .big{font-size:26px;margin:7px}
+ .sub{margin-bottom:4px}
+ .actions{margin-top:9px}
+ .event{width:94%;margin-top:10px}
+ .adCard{margin-bottom:16px}
+ .leaderboardPanel{min-height:250px;max-height:330px}
+ .leaderboardList{max-height:235px}
+ .saleTicker{width:96vw;height:31px;border-radius:0 0 11px 11px}
+ .saleTicker:before{left:8px;top:5px}
+ .saleTickerTrack{line-height:31px;padding-left:32px;font-size:10px;letter-spacing:1px}
+}
+@media(max-width:430px){
+ header{height:58px;min-height:58px;padding:7px 8px}
+ .logo{font-size:17px;letter-spacing:2px}
+ .pill{padding:6px 7px;font-size:11px;border-radius:11px}
+ .doom{width:min(72vw,270px);height:min(72vw,270px)}
+ .level{font-size:16px}
+ .bar{width:94%;height:11px;margin:7px 0 12px}
+ .actions,.actions.extra{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}
+ .action.compact{min-height:44px!important;font-size:11px!important;padding:7px 5px!important}
+ .leaderboardPanel{min-height:235px;max-height:300px}
+ .leaderboardList{max-height:205px}
+}
+
+.saleTicker{position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:50;width:min(760px,78vw);height:34px;overflow:hidden;background:linear-gradient(90deg,rgba(255,45,140,.16),rgba(255,190,45,.18),rgba(0,230,255,.16));border:1px solid rgba(255,180,80,.5);border-top:0;border-radius:0 0 14px 14px;box-shadow:0 8px 30px rgba(255,80,160,.18);backdrop-filter:blur(10px)}
+.saleTicker:before{content:"🔥";position:absolute;left:12px;top:7px;z-index:2}.saleTickerTrack{position:absolute;left:0;top:0;white-space:nowrap;padding-left:45px;line-height:34px;font-size:12px;font-weight:1000;letter-spacing:1.5px;color:#fff1b0;will-change:transform;animation:tickerMove 20s linear infinite}@keyframes tickerMove{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
+.upgrade.saleActive,.skinCard.saleActive{border-color:#ffd15c;box-shadow:0 0 18px rgba(255,191,58,.22)}.saleBadge{display:inline-block;margin-left:5px;padding:2px 5px;border-radius:6px;background:#ff3b78;color:#fff;font-size:10px;font-weight:900;vertical-align:middle;animation:salePulse 1s ease-in-out infinite alternate}@keyframes salePulse{to{transform:scale(1.06);filter:brightness(1.18)}}
+.leaderboardPanel{margin-top:14px;flex:1;min-height:260px;display:flex;flex-direction:column;overflow:hidden;border-top:1px solid rgba(255,255,255,.08);padding-top:12px}.lbHead{display:flex;flex-direction:column;gap:9px}.lbHead>span{font-size:14px;font-weight:1000;letter-spacing:1.2px}.lbTabs{display:flex;gap:6px}.lbTab{flex:1;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.035);color:#bdb2d2;border-radius:8px;padding:6px 4px;font-size:9px;font-weight:1000;cursor:pointer}.lbTab.active{color:#fff;background:linear-gradient(90deg,rgba(166,74,255,.55),rgba(255,54,151,.45));border-color:rgba(255,130,220,.5)}.leaderboardList{margin-top:9px;overflow-y:auto;min-height:0;padding-right:4px;scrollbar-width:thin}.lbRow{display:grid;grid-template-columns:30px 1fr auto;align-items:center;gap:7px;padding:8px 7px;margin-bottom:5px;border-radius:9px;background:rgba(255,255,255,.035);font-size:10px}.lbRank{font-weight:1000;color:#ffd86a}.lbName{font-weight:900;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.lbValue{font-weight:1000;color:#8ffcff}.panel:nth-child(3){display:flex;flex-direction:column;min-height:0}.statCard{flex:none}.bar .fill{transition:width .55s cubic-bezier(.22,.8,.2,1)}
+
+.deviceChooser{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(circle at 50% 35%,rgba(105,30,150,.7),rgba(8,4,20,.98) 68%);backdrop-filter:blur(12px)}
+.deviceBox{width:min(560px,94vw);padding:34px 28px;border-radius:28px;text-align:center;background:linear-gradient(145deg,rgba(35,12,65,.96),rgba(11,7,27,.98));border:1px solid rgba(207,92,255,.5);box-shadow:0 0 80px rgba(174,55,255,.25),inset 0 1px 0 rgba(255,255,255,.08)}
+.deviceLogo{font-size:clamp(30px,7vw,52px);font-weight:1000;letter-spacing:4px;background:linear-gradient(90deg,#fff,#ff64dc 45%,#64edff);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 25px rgba(255,68,220,.35)}
+.deviceTitle{margin-top:18px;font-size:22px;font-weight:1000}.deviceSub{margin-top:7px;color:#cdbfe0;font-size:13px}.deviceChoices{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:25px}.deviceChoice{min-height:150px;padding:20px 12px;border-radius:20px;background:linear-gradient(145deg,#3a1760,#21103d);border:1px solid rgba(255,255,255,.12);box-shadow:0 12px 30px rgba(0,0,0,.25);transition:.18s;display:flex;flex-direction:column;align-items:center;justify-content:center}.deviceChoice:hover{transform:translateY(-4px) scale(1.015);filter:brightness(1.16);box-shadow:0 18px 40px rgba(174,55,255,.3)}.deviceChoice span{font-size:46px;margin-bottom:10px}.deviceChoice b{font-size:18px;letter-spacing:2px}.deviceChoice small{margin-top:5px;color:#bcaed0}.deviceChoice.pc{border-color:rgba(99,229,255,.35)}.deviceChoice.phone{border-color:rgba(255,93,188,.4)}
+body.mode-pc #deviceChooser,body.mode-phone #deviceChooser{display:none}
+body:not(.mode-pc):not(.mode-phone) #app{visibility:hidden}
+body.mode-pc #app{visibility:visible}
+body.mode-phone #app{visibility:visible}
+body.mode-pc main{grid-template-columns:235px minmax(0,1fr) 235px;gap:18px;padding:16px;overflow:hidden}
+body.mode-pc main>.panel:first-child{display:block;order:initial}
+body.mode-pc main>.center{order:initial}
+body.mode-pc main>.panel:last-child{display:flex;order:initial}
+body.mode-pc .leaderboardPanel{flex:1;min-height:0}
+body.mode-phone html,body.mode-phone{overflow:hidden}
+body.mode-phone header{height:60px;min-height:60px;padding:7px 9px}
+body.mode-phone .logo{font-size:18px;letter-spacing:2px}
+body.mode-phone .stats{gap:5px;flex-wrap:nowrap}
+body.mode-phone .pill{padding:6px 7px;font-size:11px}
+body.mode-phone main{display:flex;flex-direction:column;gap:12px;padding:9px;overflow-y:auto;overflow-x:hidden;align-items:stretch}
+body.mode-phone main>.center{order:1;width:100%;padding:8px 2px 4px;justify-content:flex-start}
+body.mode-phone main>.panel:first-child{order:2}
+body.mode-phone main>.panel:last-child{order:3}
+body.mode-phone .panel{width:100%;flex:none;overflow:visible;padding:11px;border-radius:17px}
+body.mode-phone .doom{width:min(72vw,270px);height:min(72vw,270px)}
+body.mode-phone .actions{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}
+body.mode-phone .action.compact{min-height:43px!important;font-size:11px!important;padding:7px 5px!important}
+body.mode-phone .leaderboardPanel{min-height:235px;max-height:300px}
+body.mode-phone .leaderboardList{max-height:205px}
+@media(max-width:430px){.deviceChoices{grid-template-columns:1fr}.deviceChoice{min-height:125px}.deviceBox{padding:27px 18px}}
+
+.rebirthCard{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:14px;margin:10px 0;text-align:left}
+.rebirthCard strong{display:block;font-size:30px;margin:5px 0}.rebirthCard small{display:block;color:#bdaacb;line-height:1.4}
+.rebirthCard.next{box-shadow:0 0 20px rgba(180,80,255,.12)}
+.soundPreview{margin:8px 0;color:#d8c8df}
+#clickTarget{transition:transform .18s ease,filter .2s ease,box-shadow .25s ease,border-radius .3s ease}
+
+/* Full visual evolution of the Doom Core */
+#clickTarget.level1{width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,#7b3cff 0 34%,#251045 62%,#09040f 100%);box-shadow:0 0 28px rgba(125,60,255,.35),inset 0 0 30px #000}
+#clickTarget.level2{width:232px;height:208px;border-radius:46% 54% 58% 42%/55% 44% 56% 45%;background:radial-gradient(circle at 45% 40%,#ff4ca8 0 20%,#7139e8 43%,#170a34 75%);box-shadow:0 0 36px rgba(255,76,168,.4),inset 0 0 28px #000}
+#clickTarget.level3{width:244px;height:216px;border-radius:38% 62% 48% 52%/46% 55% 45% 54%;background:conic-gradient(from 30deg,#ff6b3d,#773cff,#20b8ff,#ff3f9f,#ff6b3d);box-shadow:0 0 44px rgba(76,170,255,.42),inset 0 0 34px #08030e}
+#clickTarget.level4{width:252px;height:228px;border-radius:42% 58% 36% 64%/58% 38% 62% 42%;background:radial-gradient(circle,#ffd44a 0 14%,#ff7338 30%,#a52cff 58%,#17062f 82%);box-shadow:0 0 48px rgba(255,115,56,.48),inset 0 0 36px #000}
+#clickTarget.level5{width:262px;height:238px;border-radius:55% 45% 62% 38%/35% 65% 45% 55%;background:radial-gradient(circle at 55% 48%,#33f1ff 0 16%,#6b42ff 38%,#1a103e 64%,#05020a 100%);box-shadow:0 0 55px rgba(51,241,255,.46),inset 0 0 40px #000}
+#clickTarget.level6{width:274px;height:248px;border-radius:31% 69% 56% 44%/59% 41% 59% 41%;background:conic-gradient(#ff3b30,#ffd23f,#5cff72,#2ec7ff,#a742ff,#ff3b30);box-shadow:0 0 62px rgba(255,70,100,.5),inset 0 0 42px #000}
+#clickTarget.level7{width:286px;height:258px;border-radius:50% 50% 30% 70%/35% 70% 30% 65%;background:radial-gradient(circle at 50% 55%,#fff0a8 0 8%,#ff4a3d 22%,#e019ff 46%,#3e2bdb 70%,#090313 100%);box-shadow:0 0 70px rgba(224,25,255,.52),inset 0 0 46px #000}
+#clickTarget.level8{width:298px;height:270px;border-radius:67% 33% 45% 55%/48% 56% 44% 52%;background:repeating-conic-gradient(from 0deg,#151023 0 10deg,#8c36ff 10deg 20deg,#ff2d8d 20deg 30deg);box-shadow:0 0 78px rgba(255,45,141,.52),inset 0 0 52px #000}
+#clickTarget.level9{width:310px;height:282px;border-radius:38% 62% 68% 32%/63% 37% 50% 50%;background:radial-gradient(circle,#ffffff 0 4%,#7ffaff 10%,#4c55ff 26%,#cf22ff 45%,#240b4f 72%,#030108 100%);box-shadow:0 0 90px rgba(127,250,255,.58),0 0 130px rgba(207,34,255,.28),inset 0 0 58px #000}
+#clickTarget.level10{width:324px;height:294px;border-radius:50% 50% 50% 50%;background:radial-gradient(circle,#fff 0 3%,#fff2a8 8%,#ff7b35 18%,#ff2d55 34%,#c51aff 52%,#4c1b91 73%,#05010a 100%);box-shadow:0 0 100px rgba(255,123,53,.75),0 0 170px rgba(197,26,255,.38),inset 0 0 65px #000;animation:doomPulse 1.6s ease-in-out infinite alternate}
+@keyframes doomPulse{from{filter:brightness(.92) saturate(1)}to{filter:brightness(1.2) saturate(1.35)}}
+@media(max-width:600px){
+ #clickTarget.level1{width:190px;height:190px}
+ #clickTarget.level2{width:198px;height:180px}
+ #clickTarget.level3{width:206px;height:186px}
+ #clickTarget.level4{width:214px;height:194px}
+ #clickTarget.level5{width:222px;height:202px}
+ #clickTarget.level6{width:230px;height:210px}
+ #clickTarget.level7{width:238px;height:218px}
+ #clickTarget.level8{width:246px;height:226px}
+ #clickTarget.level9{width:254px;height:234px}
+ #clickTarget.level10{width:264px;height:242px}
+}
+.soundRow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:stretch}
+.soundPreviewBtn{border:0;border-radius:12px;padding:10px 14px;font-weight:800;cursor:pointer;background:linear-gradient(135deg,#7d4cff,#b84cff);color:#fff;box-shadow:0 0 18px rgba(140,90,255,.25);white-space:nowrap}
+.soundPreviewBtn.previewing{transform:scale(.96);filter:brightness(1.25)}
+.actions{width:100%;box-sizing:border-box;display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px!important;margin-top:14px}
+.actions .action{min-width:0;min-height:52px;white-space:normal;line-height:1.1}
+@media(max-width:760px){.actions{grid-template-columns:repeat(2,minmax(0,1fr))!important}.actions .action{font-size:12px}}
+@media(max-width:430px){.actions{grid-template-columns:1fr!important}.actions .action{min-height:44px}}
+.actions{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px!important;margin-top:12px}
+.actions.extra{grid-template-columns:repeat(2,minmax(0,1fr));max-width:430px;margin-left:auto;margin-right:auto}
+.action.compact{min-height:38px!important;padding:7px 8px!important;font-size:11px!important;border-radius:10px!important;white-space:normal}
+.adCard{padding:14px;border:1px solid rgba(255,88,205,.55);border-radius:19px;background:linear-gradient(145deg,rgba(104,25,115,.75),rgba(36,10,68,.9));margin-bottom:20px;box-shadow:0 0 28px rgba(255,47,182,.18),inset 0 1px 0 rgba(255,255,255,.12);position:relative;overflow:hidden}.adCard:before{content:'FREE REWARD';position:absolute;right:-30px;top:10px;transform:rotate(35deg);font-size:9px;font-weight:1000;letter-spacing:1px;padding:5px 34px;background:linear-gradient(90deg,#ffd33d,#ff7a35);color:#2a071d;box-shadow:0 0 16px rgba(255,180,40,.45)}.adCard h2{color:#ffe2fb!important;text-shadow:0 0 12px rgba(255,77,205,.45)}.adCard .upgrade{margin:4px 0 0;background:linear-gradient(135deg,#ff9d1a 0%,#ff4d7d 48%,#bd32ff 100%);border:1px solid rgba(255,255,255,.32);box-shadow:0 0 22px rgba(255,79,140,.4),0 8px 25px rgba(0,0,0,.3);animation:adPulse 1.8s ease-in-out infinite}.adCard .upgrade:hover{filter:brightness(1.15);transform:translateY(-2px) scale(1.01)}.adCard .upgrade small{color:#fff1f9;font-weight:700}.statCard{padding:2px 0 8px;border:0;border-radius:0;background:transparent;margin-bottom:12px;box-shadow:none}.statCard h2{margin-left:2px}.statCard #progress{line-height:1.65;color:#d7cae3;font-size:13px;padding:4px 2px}.statCard #progress b{color:#fff;text-shadow:0 0 8px rgba(178,119,255,.3)}@keyframes adPulse{0%,100%{box-shadow:0 0 22px rgba(255,79,140,.35),0 8px 25px rgba(0,0,0,.3)}50%{box-shadow:0 0 38px rgba(255,79,140,.62),0 8px 30px rgba(0,0,0,.35)}}
+.cosmeticGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.skinCard{padding:10px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09)}
+.skinPreview{height:62px;border-radius:10px;margin-bottom:8px}.skinCard small{display:block;color:#bba9c8;min-height:30px;margin:4px 0 8px}
+.soundGroup{margin:12px 0;padding:9px;border:1px solid rgba(255,255,255,.07);border-radius:12px}.soundGroup h3{margin:2px 0 8px;font-size:12px}
+.soundOption{display:grid;grid-template-columns:1fr 32px 32px;gap:6px;align-items:center;padding:6px;border-radius:8px}.soundOption.selected{background:rgba(126,75,255,.1)}
+.soundMiniBtn{width:32px;height:29px;border:0;border-radius:7px;background:#2a1d3e;color:white}.soundMiniBtn.choose{background:#5d38a8}
+.goalsGrid{display:grid;gap:8px}.goalCard{padding:10px;border-radius:12px;background:rgba(255,255,255,.04)}.goalBar{height:7px;background:#17101f;border-radius:99px;overflow:hidden;margin:7px 0}.goalBar span{display:block;height:100%;background:linear-gradient(90deg,#7e55ff,#ff58ad)}
+body[data-skin="cyber"]{background:radial-gradient(circle at top,#06151e,#05060e 48%,#020305)}
+body[data-skin="inferno"]{background:radial-gradient(circle at top,#351007,#0d0504 50%,#040202)}
+body[data-skin="void"]{background:radial-gradient(circle at top,#160733,#070313 50%,#010105)}
+body[data-skin="matrix"]{background:radial-gradient(circle at top,#062010,#020a05 50%,#010302)}
+body[data-skin="royal"]{background:radial-gradient(circle at top,#20113b,#080511 50%,#030205)}
+@media(max-width:760px){.actions{grid-template-columns:repeat(2,minmax(0,1fr))!important}.cosmeticGrid{grid-template-columns:1fr}}
+@media(max-width:430px){.actions,.actions.extra{grid-template-columns:1fr!important}.wheelWrap{transform:scale(.9);transform-origin:top center;margin-bottom:-18px}}
+
+
+.milestoneFlash{position:fixed;inset:0;z-index:9997;pointer-events:none;background:radial-gradient(circle,rgba(255,215,90,.55),rgba(255,74,174,.16) 35%,transparent 70%);animation:milestoneFlash .75s ease-out forwards}.milestoneText{position:fixed;left:50%;top:42%;transform:translate(-50%,-50%) scale(.5);z-index:9999;pointer-events:none;text-align:center;font-size:clamp(28px,6vw,64px);font-weight:1000;letter-spacing:2px;color:#fff;text-shadow:0 0 10px #ffcf5a,0 0 25px #ff4da6,0 0 50px #8d5cff;animation:milestonePop 1.35s cubic-bezier(.2,.8,.2,1) forwards}.milestoneText small{display:block;font-size:.35em;letter-spacing:4px;color:#ffe8b0;margin-top:8px}.burst{position:fixed;left:50%;top:42%;width:20px;height:20px;border-radius:50%;z-index:9998;pointer-events:none;box-shadow:0 0 0 0 rgba(255,211,61,.8);animation:burst .8s ease-out forwards}@keyframes milestoneFlash{0%{opacity:0}18%{opacity:1}100%{opacity:0}}@keyframes milestonePop{0%{opacity:0;transform:translate(-50%,-50%) scale(.35) rotate(-5deg)}25%{opacity:1;transform:translate(-50%,-50%) scale(1.15) rotate(2deg)}65%{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(0)}100%{opacity:0;transform:translate(-50%,-65%) scale(1.2)}}@keyframes burst{0%{opacity:1;box-shadow:0 0 0 0 rgba(255,211,61,.8),0 0 0 0 rgba(255,75,170,.6)}100%{opacity:0;box-shadow:0 0 0 150px rgba(255,211,61,0),0 0 0 260px rgba(255,75,170,0)}}
+.levelUpFx{position:fixed;inset:0;z-index:9996;pointer-events:none;background:radial-gradient(circle at 50% 45%,rgba(126,255,222,.28),transparent 32%);animation:levelFx .9s ease-out forwards}@keyframes levelFx{0%{opacity:0;transform:scale(.8)}25%{opacity:1}100%{opacity:0;transform:scale(1.25)}}
+.leaderboardBtn{margin-top:10px;width:min(430px,92%);padding:11px 18px;border-radius:14px;background:linear-gradient(90deg,rgba(255,191,45,.12),rgba(255,255,255,.06),rgba(118,71,255,.14));border:1px solid rgba(255,198,64,.42);color:#ffe7a1;font-weight:1000;letter-spacing:1px;box-shadow:0 0 22px rgba(255,184,49,.08),inset 0 1px 0 rgba(255,255,255,.08);transition:.16s}.leaderboardBtn:hover{transform:translateY(-2px);filter:brightness(1.18);box-shadow:0 0 30px rgba(255,184,49,.18)}.leaderboardBtn small{display:block;margin-top:3px;font-size:9px;letter-spacing:1.5px;color:#bcaed0;font-weight:800}.panel:nth-child(3){background:transparent;border:0;box-shadow:none;padding:6px 4px;overflow:auto}.panel:nth-child(3) h2{margin-top:2px}
+@media(max-width:850px){#clickTarget.level1{width:190px;height:190px}#clickTarget.level2{width:198px;height:180px}#clickTarget.level3{width:206px;height:186px}#clickTarget.level4{width:214px;height:194px}#clickTarget.level5{width:222px;height:202px}#clickTarget.level6{width:230px;height:210px}#clickTarget.level7{width:238px;height:218px}#clickTarget.level8{width:246px;height:226px}#clickTarget.level9{width:254px;height:234px}#clickTarget.level10{width:264px;height:242px}}
+
+/* Stronger interface-wide cosmetic themes */
+body[data-skin="cyber"] header{background:linear-gradient(90deg,rgba(0,35,55,.96),rgba(0,104,135,.72),rgba(5,15,35,.96));border-color:#27e6ff}body[data-skin="cyber"] .panel{background:linear-gradient(180deg,rgba(4,38,56,.92),rgba(2,14,27,.9));border-color:rgba(39,230,255,.55)}body[data-skin="cyber"] .action{background:linear-gradient(135deg,#087fa6,#16d9ff,#4168ff)}body[data-skin="cyber"] .upgrade{background:linear-gradient(135deg,#063b55,#0b7188)}body[data-skin="cyber"] .bar{border-color:#20dfff}body[data-skin="cyber"] .fill{background:linear-gradient(90deg,#00eaff,#28a9ff,#765cff)}
+body[data-skin="inferno"] header{background:linear-gradient(90deg,rgba(55,7,2,.97),rgba(125,24,5,.8),rgba(24,5,3,.97));border-color:#ff632f}body[data-skin="inferno"] .panel{background:linear-gradient(180deg,rgba(58,13,5,.94),rgba(19,5,3,.92));border-color:rgba(255,88,35,.58)}body[data-skin="inferno"] .action{background:linear-gradient(135deg,#b51f0b,#ff5a19,#ffbd2e)}body[data-skin="inferno"] .upgrade{background:linear-gradient(135deg,#531208,#9c2b0b)}body[data-skin="inferno"] .fill{background:linear-gradient(90deg,#ff321e,#ff8a1c,#ffd12e)}
+body[data-skin="void"] header{background:linear-gradient(90deg,rgba(28,5,57,.98),rgba(91,20,142,.72),rgba(8,3,22,.98));border-color:#bd61ff}body[data-skin="void"] .panel{background:linear-gradient(180deg,rgba(35,8,65,.94),rgba(8,3,20,.94));border-color:rgba(189,97,255,.6)}body[data-skin="void"] .action{background:linear-gradient(135deg,#5420b9,#b51cff,#ef42aa)}body[data-skin="void"] .upgrade{background:linear-gradient(135deg,#291052,#59127d)}body[data-skin="void"] .fill{background:linear-gradient(90deg,#762cff,#d72cff,#6c62ff)}
+body[data-skin="matrix"] header{background:linear-gradient(90deg,rgba(1,28,12,.98),rgba(5,92,35,.78),rgba(1,12,6,.98));border-color:#4dff8a}body[data-skin="matrix"] .panel{background:linear-gradient(180deg,rgba(3,40,17,.94),rgba(1,13,6,.94));border-color:rgba(77,255,138,.52)}body[data-skin="matrix"] .action{background:linear-gradient(135deg,#087d3a,#15c85a,#72ff9b);color:#02160a}body[data-skin="matrix"] .upgrade{background:linear-gradient(135deg,#06351b,#08713a)}body[data-skin="matrix"] .fill{background:linear-gradient(90deg,#16ff72,#4dffbf,#b2ff4d)}
+body[data-skin="royal"] header{background:linear-gradient(90deg,rgba(35,18,72,.98),rgba(108,66,177,.8),rgba(20,10,42,.98));border-color:#ffd45b}body[data-skin="royal"] .panel{background:linear-gradient(180deg,rgba(49,25,88,.94),rgba(15,8,32,.94));border-color:rgba(255,212,91,.55)}body[data-skin="royal"] .action{background:linear-gradient(135deg,#6340d7,#9d54ff,#ffd34f);color:#170b2b}body[data-skin="royal"] .upgrade{background:linear-gradient(135deg,#35205d,#6740a3)}body[data-skin="royal"] .fill{background:linear-gradient(90deg,#8d55ff,#d99cff,#ffd34f)}
+body[data-skin="cyber"] .pill,body[data-skin="inferno"] .pill,body[data-skin="void"] .pill,body[data-skin="matrix"] .pill,body[data-skin="royal"] .pill{transition:.3s;box-shadow:0 0 24px rgba(255,255,255,.12),inset 0 1px 0 rgba(255,255,255,.14)}
+.skinCard.active{outline:2px solid #fff;box-shadow:0 0 25px rgba(255,255,255,.2)}
+
+/* Fortune Wheel: dedicated, stable modal and clearly marked sections */
+.fortuneHead{display:flex;align-items:center;justify-content:space-between;gap:12px}.fortuneHead h1{margin-bottom:0}.fortuneBalance{padding:7px 11px;border-radius:12px;background:rgba(126,72,255,.18);border:1px solid rgba(196,129,255,.3);font-weight:1000}.fortuneCost{text-align:center;margin:8px 0 4px}.fortuneCost strong{color:#ffe36d}.wheelWrap{height:310px;width:310px;margin:8px auto 4px;align-items:center}.wheel{width:276px;height:276px;border:10px solid #fff2ff;background:#160b29;overflow:visible;transform:rotate(0deg);box-shadow:0 0 0 4px rgba(255,255,255,.08),0 0 28px rgba(255,73,174,.35),0 0 70px rgba(117,69,255,.28);transition:transform 2.5s cubic-bezier(.12,.7,.15,1)}.wheelSector{position:absolute;left:50%;top:50%;width:2px;height:128px;transform-origin:50% 0;transform:translate(-50%,0) rotate(var(--a));background:linear-gradient(to bottom,rgba(255,255,255,.95),rgba(255,255,255,.25));z-index:2;pointer-events:none}.wheelSector:after{content:"";position:absolute;top:0;left:-135px;width:270px;height:270px;transform:translateY(-1px);background:var(--c);clip-path:polygon(50% 50%,50% 0,100% 0);opacity:.9;z-index:-1}.wheelLabel{width:62px;height:52px;margin-left:-31px;margin-top:-26px;padding-top:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:15px;text-shadow:0 2px 6px #000,0 0 10px #000;z-index:5;transform:rotate(var(--a)) translateY(-91px) rotate(calc(-1 * var(--a)))}.wheelLabel b{font-size:15px}.wheelLabel small{font-size:9px;margin-top:2px}.wheelRing{position:absolute;inset:8px;border-radius:50%;border:2px dashed rgba(255,255,255,.65);box-shadow:inset 0 0 0 2px rgba(0,0,0,.22);pointer-events:none;z-index:4}.wheelCenter{width:66px;height:66px;line-height:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(circle,#fff,#ffd65a 38%,#ff4ea9 100%);border:4px solid #fff;box-shadow:0 0 18px #fff,0 0 36px #ff5bc4;z-index:7;font-size:27px}.wheelCenter small{font-size:8px;font-weight:1000;letter-spacing:1px;color:#32102e;margin-top:2px}.pointer{top:0;border-left-width:16px;border-right-width:16px;border-top:34px solid #fff;filter:drop-shadow(0 0 7px #fff) drop-shadow(0 3px 4px #000)}.wheelLegend{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:4px auto 12px;max-width:430px}.wheelLegend span{display:flex;align-items:center;justify-content:center;gap:4px;padding:5px 3px;border-radius:8px;background:rgba(255,255,255,.045);font-size:9px;font-weight:900}.wheelLegend i{width:8px;height:8px;border-radius:50%;box-shadow:0 0 6px currentColor}.fortuneSpin{width:100%;font-size:14px!important;min-height:48px!important}.fortuneSpin:disabled{filter:grayscale(.4);opacity:.55}
+@media(max-width:430px){.wheelWrap{width:286px;height:286px;transform:none;margin-bottom:0}.wheel{width:250px;height:250px}.wheelSector{height:115px}.wheelSector:after{width:244px;height:244px;left:-122px}.wheelLabel{transform:rotate(var(--a)) translateY(-82px) rotate(calc(-1 * var(--a)));font-size:13px}.wheelLabel b{font-size:13px}.wheelCenter{width:58px;height:58px}.wheelLegend{grid-template-columns:repeat(4,1fr);gap:4px}.wheelLegend span{font-size:8px}.fortuneHead h1{font-size:20px}.fortuneBalance{font-size:11px}}
+@media(max-width:760px){body.mode-phone .actions .action{font-size:0!important;min-height:50px!important;padding:8px!important}body.mode-phone .actions .action::before{content:attr(data-phone-icon);font-size:24px;line-height:1}body.mode-phone .actions .action span{display:none!important}}
+
+/* === Fortune Wheel — based only on the attached version === */
+.fortuneHead{display:flex;align-items:center;justify-content:space-between;gap:12px}.fortuneHead h1{margin-bottom:0}.fortuneBalance{padding:7px 11px;border-radius:12px;background:rgba(126,72,255,.18);border:1px solid rgba(196,129,255,.3);font-weight:1000}.fortuneCost{text-align:center;margin:8px 0 4px}.fortuneCost strong{color:#ffe36d}.wheelStage{position:relative;width:292px;height:322px;margin:10px auto 4px;display:flex;align-items:flex-end;justify-content:center}.wheel.fortuneWheel{position:relative;width:270px!important;height:270px!important;border-radius:50%;border:10px solid #f3d7ff!important;background:#160b29!important;overflow:visible!important;box-shadow:0 0 18px #ff5bd866,0 0 45px #7d3cff55,inset 0 0 0 3px #ffffff55!important;transform:rotate(0deg);transition:transform 2.7s cubic-bezier(.12,.7,.15,1)!important}.fortuneDisc{position:absolute;inset:0;border-radius:50%;overflow:hidden;background:conic-gradient(#ff3f9d 0 45deg,#713dff 45deg 90deg,#32dfff 90deg 135deg,#ffb52f 135deg 180deg,#ff3f9d 180deg 225deg,#713dff 225deg 270deg,#32dfff 270deg 315deg,#ffb52f 315deg 360deg)}.fortuneDisc:after{content:"";position:absolute;inset:8px;border-radius:50%;border:2px dashed rgba(255,255,255,.65);box-shadow:inset 0 0 0 2px rgba(0,0,0,.22);pointer-events:none}.fortuneSector{position:absolute;inset:0;transform:rotate(var(--mid));transform-origin:50% 50%;pointer-events:none;z-index:2}.fortuneSector:before{content:"";position:absolute;left:50%;top:0;width:2px;height:50%;background:linear-gradient(#fff,rgba(255,255,255,.2));box-shadow:0 0 5px rgba(255,255,255,.7);transform:translateX(-50%)}.fortuneSectorIcon{position:absolute;left:50%;top:10%;transform:translateX(-50%);font-size:18px;filter:drop-shadow(0 2px 4px #000)}.fortuneSector b{position:absolute;left:50%;top:22%;transform:translateX(-50%);font-size:17px;color:#fff;white-space:nowrap;text-shadow:0 2px 5px #000,0 0 8px #000}.fortuneSector small{position:absolute;left:50%;top:31%;transform:translateX(-50%);font-size:9px;color:#fff;white-space:nowrap;text-shadow:0 2px 4px #000}.wheelRing{position:absolute;inset:7px;border-radius:50%;border:2px solid rgba(255,255,255,.7);box-shadow:inset 0 0 0 2px rgba(0,0,0,.2);pointer-events:none;z-index:8}.wheelCenter{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:66px;height:66px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(circle,#fff,#ffd65a 38%,#ff4ea9 100%);border:4px solid #fff;box-shadow:0 0 18px #fff,0 0 36px #ff5bc4;z-index:10;font-size:27px}.wheelCenter small{font-size:8px;font-weight:1000;letter-spacing:1px;color:#32102e;margin-top:2px}.wheelStage .pointer{position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:20;width:0;height:0;border-left:16px solid transparent;border-right:16px solid transparent;border-top:34px solid #fff;filter:drop-shadow(0 0 7px #fff) drop-shadow(0 3px 4px #000)}.wheelLegend{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:6px!important;margin:4px auto 12px!important;max-width:430px}.wheelLegend span{display:flex;align-items:center;justify-content:center;gap:4px;padding:5px 3px;border-radius:8px;background:rgba(255,255,255,.045);font-size:9px;font-weight:900}.wheelLegend i{width:8px;height:8px;border-radius:50%;box-shadow:0 0 6px currentColor}.fortuneSpin{width:100%!important;min-height:48px!important;font-size:14px!important}.fortuneSpin:disabled{filter:grayscale(.4);opacity:.55}.fortuneHint{text-align:center;color:#b9aac7;font-size:9px;margin:4px 0 8px}@media(max-width:430px){.wheelStage{width:286px;height:286px;margin-bottom:0}.wheel.fortuneWheel{width:250px!important;height:250px!important}.fortuneSectorIcon{font-size:15px}.fortuneSector b{font-size:14px}.fortuneSector small{font-size:8px}.wheelCenter{width:58px;height:58px;font-size:22px}.wheelLegend{grid-template-columns:repeat(4,1fr)!important;gap:4px!important}.wheelLegend span{font-size:8px}.fortuneHead h1{font-size:20px}.fortuneBalance{font-size:11px}}
+
+.lang-ru .adCard:before{content:'БЕСПЛАТНАЯ НАГРАДА'}
+.lang-en .adCard:before{content:'FREE REWARD'}
+</style>
+</head>
+<body>
+<div id="deviceChooser" class="deviceChooser">
+  <div class="deviceBox">
+    <div class="deviceLogo">DOOM CLICK</div>
+    <div class="deviceTitle" data-ui="chooseDevice"></div>
+    <div class="deviceSub" data-ui="deviceSub"></div>
+    <div class="deviceChoices">
+      <button class="deviceChoice pc" onclick="selectDevice('pc')"><span>🖥️</span><b data-ui="pcLabel">PC</b><small data-ui="desktop"></small></button>
+      <button class="deviceChoice phone" onclick="selectDevice('phone')"><span>📱</span><b data-ui="phoneLabel">PHONE</b><small data-ui="phone"></small></button>
+    </div>
+  </div>
+</div>
+<div id="app"><div id="saleTicker" class="saleTicker" style="display:none"><div id="saleTickerTrack"></div></div>
+<header><div class="logo">DOOM CLICK</div><div class="stats"><div class="pill">💰 <span id="coins">0</span></div><div class="pill crystal">💎 <span id="crystals">0</span></div><div class="pill">♻️ <span id="rebirth">0</span></div></div></header>
+<main>
+<section class="panel"><h2 data-ui="upgrades">⚡ Upgrades</h2><div id="upgrades"></div></section>
+<section class="center">
+<div class="level"><span id="levelLabel" data-ui="levelLabel">LEVEL</span> <span id="level">1</span></div><div class="bar"><div id="fill" class="fill"></div></div>
+<div id="clickTarget" class="doom"><span>👹</span></div>
+<div class="big"><span id="power">1</span> <span id="clickLabel" data-ui="clickLabel">/ CLICK</span></div><div class="sub"><span id="autoLabel" data-ui="autoLabel">AUTO</span>: <span id="auto">0</span>/sec</div>
+<div class="actions"><button class="action compact" data-phone-icon="🏆" onclick="openModal('achievements')">🏆 <span data-ui="achievements"></span></button><button id="fortuneWheelBtn" class="action compact" data-phone-icon="🎡" type="button" onclick="openWheel(event)">🎡 <span data-ui="fortune"></span></button><button class="action compact" data-phone-icon="♻️" onclick="openModal('rebirth')">♻️ <span data-ui="rebirth"></span></button><button class="action compact" data-phone-icon="⚙️" onclick="openModal('settings')">⚙️ <span data-ui="settings"></span></button></div><div class="actions extra"><button class="action compact" data-phone-icon="🎨" onclick="openModal('shop')">🎨 <span data-ui="themes"></span></button><button class="action compact" data-phone-icon="🎯" onclick="openModal('goals')">🎯 <span data-ui="daily"></span></button></div>
+<div id="eventBox" class="event" style="display:none"></div>
+</section>
+<section class="panel">
+<div class="adCard"><h2 data-ui="bonuses">🎁 Bonuses</h2><button class="upgrade" onclick="claimAd()"></button></div>
+<div class="statCard"><h2 data-ui="progress">📜 Progress</h2><div id="progress"></div></div><div class="leaderboardPanel"><div class="lbHead"><span>🏆 <span data-ui="leaderboard">LEADERBOARD</span></span><div class="lbTabs"><button class="lbTab active" data-cat="clicks" onclick="setLeaderboardCategory('clicks')"></button><button class="lbTab" data-cat="coins" onclick="setLeaderboardCategory('coins')"></button><button class="lbTab" data-cat="level" onclick="setLeaderboardCategory('level')"></button></div></div><div id="leaderboardList" class="leaderboardList"></div></div>
+</section>
+</main></div>
+<div id="toast"></div>
+<div id="modal" class="modal"><div class="box"><button class="close" onclick="closeModal()">✕</button><div id="modalContent"></div></div></div>
+<script>
+const modal=document.getElementById('modal');
+const modalContent=document.getElementById('modalContent');
+const coins=document.getElementById('coins');
+const crystals=document.getElementById('crystals');
+const rebirth=document.getElementById('rebirth');
+const level=document.getElementById('level');
+const power=document.getElementById('power');
+const auto=document.getElementById('auto');
+const fill=document.getElementById('fill');
+const progress=document.getElementById('progress');
+const upgrades=document.getElementById('upgrades');
+const eventBox=document.getElementById('eventBox');
+const clickTarget=document.getElementById('clickTarget');
+const KEY='doom_click_v7';
+const old=JSON.parse(localStorage.getItem(KEY)||localStorage.getItem('doom_click_v6')||localStorage.getItem('doom_click_v5')||localStorage.getItem('doom_click_v4')||localStorage.getItem('doom_click_v2')||'null');
+let s=old||{
+  coins:0,crystals:0,clicks:0,lifetimeCoins:0,lifetimeCrystals:0,
+  bestClick:0,power:1,auto:0,level:1,xp:0,rebirth:0,upgrades:[0,0,0,0,0,0,0,0],
+  ach:{},music:true,sfx:true,lang:'ru',wheel:0,events:0,
+  startedAt:Date.now(),lastSeen:Date.now(),timePlayed:0,combo:0,comboPeak:0
+};
+s.upgrades=(s.upgrades||[]).concat([0,0,0,0,0,0,0,0]).slice(0,8);
+s.lifetimeCoins=s.lifetimeCoins||0;
+s.lifetimeCrystals=s.lifetimeCrystals||0;
+s.bestClick=s.bestClick||0;
+s.events=s.events||0;
+s.startedAt=s.startedAt||Date.now();
+s.lastSeen=s.lastSeen||Date.now();
+s.timePlayed=s.timePlayed||0;
+s.combo=s.combo||0;
+s.comboPeak=s.comboPeak||0;
+s.clickSound=s.clickSound||'coin';
+s.ownedSkins=s.ownedSkins||['classic'];
+s.skin=s.skin||'classic';
+s.goalDay=s.goalDay||new Date().toISOString().slice(0,10);
+s.goalStats=s.goalStats||{clicks:0,coins:0,crystals:0,events:0};
+s.goalClaimed=s.goalClaimed||{};
+s.saleOffers=Array.isArray(s.saleOffers)?s.saleOffers:[];
+s.saleNextAt=s.saleNextAt||Date.now()+45000+Math.random()*90000;
+if(s.goalDay!==new Date().toISOString().slice(0,10)){s.goalDay=new Date().toISOString().slice(0,10);s.goalStats={clicks:0,coins:0,crystals:0,events:0};s.goalClaimed={};}
+s.clickSound=s.clickSound||'coin';
+s.circleStyle=s.circleStyle||1;
+s.visualLevel=s.visualLevel||s.level;
+s.milestones=s.milestones||{};
+const A=[
+  {key:'click',icon:'💥',cost:25,desc:{ru:'Увеличивает силу каждого клика.',en:'Increases the power of every click.'},effect:'+1 сила клика',effectEn:'+1 click power'},
+  {key:'auto',icon:'🤖',cost:100,desc:{ru:'Автоматически приносит монеты каждую секунду.',en:'Automatically earns coins every second.'},effect:'+1 монета/сек',effectEn:'+1 coin/sec'},
+  {key:'crystal',icon:'💎',cost:500,desc:{ru:'Повышает шанс получить кристалл при клике.',en:'Raises the chance to find a crystal on click.'},effect:'+5% бонус к выпадению кристаллов',effectEn:'+5% crystal drop bonus'},
+  {key:'crit',icon:'🎯',cost:1200,desc:{ru:'Добавляет шанс на критический клик с наградой ×3.',en:'Adds a chance for a critical click worth ×3.'},effect:'+2% шанс крита',effectEn:'+2% crit chance'},
+  {key:'combo',icon:'🔥',cost:2500,desc:{ru:'Увеличивает силу серии быстрых кликов.',en:'Boosts the reward from fast click streaks.'},effect:'+5% сила комбо',effectEn:'+5% combo power'},
+  {key:'offline',icon:'⏱️',cost:5000,desc:{ru:'Улучшает накопление награды за время отсутствия.',en:'Improves compensation for time spent away.'},effect:'+10% офлайн-бонус',effectEn:'+10% offline bonus'},
+  {key:'luck',icon:'🍀',cost:9000,desc:{ru:'Ещё сильнее повышает шанс на дополнительные кристаллы.',en:'Further increases the chance of bonus crystals.'},effect:'+3% удача',effectEn:'+3% luck'},
+  {key:'overdrive',icon:'⚡',cost:18000,desc:{ru:'Заряжает серию кликов и усиливает бонус комбо.',en:'Charges your click streak and strengthens combo rewards.'},effect:'+10% сила комбо',effectEn:'+10% combo power'}
+];
+const achievements=[
+  ['first','First Click',1,'clicks',1,10],['hundred','100 Clicks',100,'clicks',100,25],['thousand','1,000 Clicks',1000,'clicks',1000,50],
+  ['tenk','10,000 Clicks',10000,'clicks',5000,100],['level10','Level 10',10,'level',500,75],['level25','Level 25',25,'level',1000,150],
+  ['million','Millionaire',1000000,'lifetimeCoins',10000,250],['reborn','First Rebirth',1,'rebirth',250,100],['reborn5','Five Rebirths',5,'rebirth',5000,500],
+  ['crystal100','Crystal Hunter',100,'lifetimeCrystals',1000,100],['wheel','Lucky One',1,'wheel',1000,100]
+];
+function selectDevice(mode){
+  const device=mode==='phone'?'phone':'pc';
+  const chooser=document.getElementById('deviceChooser');
+  const app=document.getElementById('app');
+  document.body.classList.remove('mode-pc','mode-phone');
+  document.body.classList.add('mode-'+device);
+  localStorage.setItem('doom_click_device_mode',device);
+  if(chooser) chooser.style.display='none';
+  if(app){app.style.display='flex';app.style.visibility='visible';}
+  setTimeout(()=>window.scrollTo(0,0),0);
+}
+
+function save(){localStorage.setItem(KEY,JSON.stringify(s))}
+function fmt(n){return Math.floor(n).toLocaleString('en-US')}
+function toast(t){let e=document.getElementById('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1800)}
+
+const CLICK_SOUNDS={
+  meme:[
+    ['vine','Vine Boom'],['popcat','Pop Cat'],['bonk','Bonk'],['error','Windows Error'],['bruh','Bruh'],['airhorn','Air Horn']
+  ],
+  popular:[
+    ['coin','Arcade Coin'],['hit','Impact Hit'],['laser','Laser Zap'],['blip','Retro Blip'],['power','Power Up'],['spark','Electric Spark']
+  ],
+  calm:[
+    ['soft','Soft Tap'],['bubble','Bubble Pop'],['wood','Wood Tap'],['glass','Soft Glass'],['chime','Gentle Chime'],['bell','Small Bell']
+  ],
+  extreme:[
+    ['bass','Bass Drop'],['explosion','Mini Explosion'],['shock','Shockwave'],['metal','Metal Hit'],['whoosh','Fast Whoosh'],['doom','Doom Pulse']
+  ]
+};
+
+function previewClickSound(){
+  const was=s.sfx;s.sfx=true;playClickSound();s.sfx=was;
+  const b=document.getElementById('soundPreviewBtn');
+  if(b){b.classList.add('previewing');setTimeout(()=>b.classList.remove('previewing'),220);}
+}
+
+function playClickSound(){
+  if(!s.sfx)return;
+  try{
+    const AC=window.AudioContext||window.webkitAudioContext;
+    if(!AC)return;
+    if(!window.__audioCtx)window.__audioCtx=new AC();
+    const ctx=window.__audioCtx, now=ctx.currentTime, type=s.clickSound||'coin';
+    const o=ctx.createOscillator(), g=ctx.createGain(), f=ctx.createBiquadFilter();
+    o.connect(f);f.connect(g);g.connect(ctx.destination);
+    let start=300,end=180,dur=.09,wave='square';
+    if(type==='vine'){start=90;end=35;dur=.16;wave='sawtooth'}
+    if(type==='popcat'){start=220;end=520;dur=.07;wave='triangle'}
+    if(type==='bonk'){start=180;end=65;dur=.13;wave='square'}
+    if(type==='error'){start=480;end=180;dur=.12;wave='square'}
+    if(type==='bruh'){start=110;end=70;dur=.24;wave='sawtooth'}
+    if(type==='airhorn'){start=220;end=120;dur=.22;wave='sawtooth'}
+    if(type==='coin'){start=760;end=1160;dur=.09;wave='triangle'}
+    if(type==='hit'){start=150;end=90;dur=.07;wave='square'}
+    if(type==='laser'){start=1000;end=220;dur=.13;wave='sawtooth'}
+    if(type==='blip'){start=500;end=800;dur=.06;wave='square'}
+    if(type==='power'){start=280;end=980;dur=.25;wave='sine'}
+    if(type==='spark'){start=900;end=1600;dur=.08;wave='sine'}
+    if(type==='soft'){start=380;end=260;dur=.08;wave='sine'}
+    if(type==='bubble'){start=650;end=220;dur=.11;wave='sine'}
+    if(type==='wood'){start=180;end=110;dur=.08;wave='triangle'}
+    if(type==='glass'){start=1100;end=900;dur=.12;wave='sine'}
+    if(type==='chime'){start=700;end=980;dur=.24;wave='sine'}
+    if(type==='bell'){start=560;end=420;dur=.28;wave='sine'}
+    if(type==='bass'){start=90;end=42;dur=.28;wave='sawtooth'}
+    if(type==='explosion'){start=120;end=28;dur=.2;wave='sawtooth'}
+    if(type==='shock'){start=180;end=35;dur=.16;wave='square'}
+    if(type==='metal'){start=420;end=120;dur=.14;wave='square'}
+    if(type==='whoosh'){start=250;end=1400;dur=.18;wave='sawtooth'}
+    if(type==='doom'){start=70;end=34;dur=.32;wave='sine'}
+    o.type=wave;o.frequency.setValueAtTime(start,now);o.frequency.exponentialRampToValueAtTime(Math.max(20,end),now+dur);
+    g.gain.setValueAtTime(.0001,now);g.gain.exponentialRampToValueAtTime(.13,now+.008);g.gain.exponentialRampToValueAtTime(.0001,now+dur);
+    f.type='lowpass';f.frequency.setValueAtTime(4000,now);
+    o.start(now);o.stop(now+dur+.02);
+  }catch(e){}
+}
+function soundName(key){
+  for(const group of Object.values(CLICK_SOUNDS)){
+    const found=group.find(x=>x[0]===key);
+    if(found)return found[1];
+  }
+  return 'Arcade Coin';
+}
+
+
+const SKINS=[
+ {id:'classic',name:'Неон / Neon',desc:'Базовое неоновое оформление',coin:0,crystal:0,preview:'linear-gradient(135deg,#161022,#5e39aa,#ef4aa8)'},
+ {id:'cyber',name:'Cyber Pulse',desc:'Холодный киберпанк',coin:3500,crystal:65,preview:'linear-gradient(135deg,#061e2a,#19c6ff,#7c4dff)'},
+ {id:'inferno',name:'Inferno',desc:'Огненное оформление',coin:9000,crystal:125,preview:'linear-gradient(135deg,#35100a,#ff4d22,#ffb32c)'},
+ {id:'void',name:'Void',desc:'Тёмный космический стиль',coin:15000,crystal:200,preview:'linear-gradient(135deg,#030207,#26105e,#b026ff)'},
+ {id:'matrix',name:'Matrix',desc:'Цифровой зелёный стиль',coin:24000,crystal:280,preview:'linear-gradient(135deg,#03160d,#19a15d,#6aff9d)'},
+ {id:'royal',name:'Royal',desc:'Премиальный фиолетово-золотой стиль',coin:40000,crystal:480,preview:'linear-gradient(135deg,#1a103a,#8a54ff,#ffd75a)'}
+];
+const DAILY_GOALS=[
+ {id:'clicks',goal:100,text:'Сделай 100 кликов',reward:25},
+ {id:'clicks2',goal:500,text:'Сделай 500 кликов',reward:60},
+ {id:'coins',goal:5000,text:'Заработай 5 000 монет',reward:50},
+ {id:'crystals',goal:15,text:'Получи 15 кристаллов',reward:40},
+ {id:'events',goal:1,text:'Переживи случайное событие',reward:35}
+];
+let pendingOfflineReward=0;
+if(old){const away=Math.min(8*3600,Math.max(0,(Date.now()-(s.lastSeen||Date.now()))/1000));if(away>15&&s.auto>0){pendingOfflineReward=Math.floor(s.auto*away*(1+(s.offline||0))*(1+s.rebirth*.1));if(pendingOfflineReward>0){addCoins(pendingOfflineReward);s.xp+=pendingOfflineReward}}s.lastSeen=Date.now();}
+function applySkin(){document.body.dataset.skin=s.skin}
+function previewSoundById(id){const old=s.clickSound;s.clickSound=id;const was=s.sfx;s.sfx=true;playClickSound();s.sfx=was;s.clickSound=old}
+function saleDiscount(id){
+  const hit=(s.saleOffers||[]).find(x=>x.id===id && x.until>Date.now());
+  return hit?hit.discount:0;
+}
+function discounted(value,id){return Math.max(1,Math.floor(value*(1-saleDiscount(id)/100)))}
+function upgradeCost(i){const a=A[i],lvl=s.upgrades[i]||0;return Math.floor(a.cost*Math.pow(1.75,lvl))}
+function skinCost(k){return {coin:k.coin?discounted(k.coin,'skin:'+k.id):0,crystal:k.crystal?discounted(k.crystal,'skin:'+k.id):0}}
+function saleText(id){const d=saleDiscount(id);return d?` <span class="saleBadge">-${d}%</span>`:''}
+function startSale(){
+  const pool=[...A.map((_,i)=>'upg:'+i),...SKINS.filter(k=>k.id!=='classic').map(k=>'skin:'+k.id),'wheel'];
+  const shuffled=pool.sort(()=>Math.random()-.5);
+  const count=3+Math.floor(Math.random()*2);
+  const duration=30000+Math.floor(Math.random()*45000);
+  s.saleOffers=shuffled.slice(0,count).map(id=>({id,discount:[15,20,25,30,35,40][Math.floor(Math.random()*6)],until:Date.now()+duration}));
+  s.saleNextAt=Date.now()+90000+Math.random()*150000;
+  toast(ui('newSale'));
+  save();render();renderLeaderboard();
+}
+function updateSales(){
+  const now=Date.now();
+  s.saleOffers=(s.saleOffers||[]).filter(x=>x.until>now);
+  if(now>=s.saleNextAt && !s.saleOffers.length)startSale();
+}
+function buySkin(id){
+ const k=SKINS.find(x=>x.id===id); if(!k)return;
+ if(s.ownedSkins.includes(id)){s.skin=id;applySkin();save();showShop();return}
+ const price=skinCost(k);
+ if(s.coins<price.coin||s.crystals<price.crystal){toast(tr('notEnough'));return}
+ s.coins-=price.coin;s.crystals-=price.crystal;s.ownedSkins.push(id);s.skin=id;applySkin();save();showShop();render()
+}
+function showShop(){
+ modalContent.innerHTML=`<h1>🎨 ${s.lang==='ru'?'Магазин оформления':'Interface Shop'}</h1>
+ <p>${s.lang==='ru'?'Только внешний вид. Не меняет силу, доход или шансы.':'Cosmetic only. No effect on power, income or chances.'}</p>
+ <div class="cosmeticGrid">${SKINS.map(k=>{const owned=s.ownedSkins.includes(k.id),active=s.skin===k.id;
+ const cost=[k.coin?fmt(k.coin)+' 💰':'',k.crystal?fmt(k.crystal)+' 💎':''].filter(Boolean).join(' + ')||'FREE';
+ return `<div class="skinCard"><div class="skinPreview" style="background:${k.preview}"></div><b>${k.name}</b><small>${k.desc}</small><div>${owned?'OWNED':cost}</div><button class="action compact" onclick="buySkin('${k.id}')">${active?'ACTIVE':owned?'APPLY':'BUY'}</button></div>`}).join('')}</div>`
+}
+function showGoals(){
+  modalContent.innerHTML=`<h1>${ui('goalsTitle')}</h1>
+  <p>${ui('goalsDesc')}</p>
+  <div class="goalsGrid">${DAILY_GOALS.map(g=>{const key=g.id.startsWith('clicks')?'clicks':g.id,cur=Math.min(g.goal,s.goalStats[key]||0),done=cur>=g.goal,claimed=!!s.goalClaimed[g.id];
+  return `<div class="goalCard"><b>${uiObj('goals',g.id)}</b><div class="goalBar"><span style="width:${cur/g.goal*100}%"></span></div><small>${fmt(cur)} / ${fmt(g.goal)}</small><button class="action compact" ${done&&!claimed?'':'disabled'} onclick="claimGoal('${g.id}')">${claimed?ui('claimed'):done?ui('claim'):ui('locked')} · +${g.reward} 💎</button></div>`}).join('')}</div>`
+}
+function claimGoal(id){const g=DAILY_GOALS.find(x=>x.id===id);if(!g||s.goalClaimed[id])return;const key=g.id.startsWith('clicks')?'clicks':g.id;if((s.goalStats[key]||0)<g.goal)return;s.goalClaimed[id]=1;addCrystals(g.reward);toast('🎯 +'+g.reward+' 💎');save();render();showGoals()}
+
+const T={
+ru:{
+upgrades:'Улучшения',bonuses:'Бонусы',progress:'Статистика',achievements:'Достижения',fortune:'Колесо фортуны',
+rebirth:'Перерождение',settings:'Настройки',level:'УРОВЕНЬ',click:'ЗА КЛИК',auto:'АВТО',
+watch:'📺 Смотреть видео',videoReward:'Демо-награда: +50 💎',clicks:'Клики',levels:'Уровень',rebirths:'Перерождения',
+crystals:'Кристаллы',cost:'Цена',notEnough:'Недостаточно 💰',purchased:'✨ Улучшение куплено!',
+levelUp:'🎉 НОВЫЙ УРОВЕНЬ! +5 💎',video:'📺 Награда за видео: +50 💎',need:'Нужно 100 💎',
+spin:'КРУТИТЬ — 100 💎',won:'🎉 Вы выиграли',rebirthTitle:'♻️ Перерождение',
+rebirthDesc:'Сбросьте обычный прогресс и получите постоянный бонус к заработку.',
+currentBonus:'Текущий бонус',nextCost:'Цена следующего перерождения',doRebirth:'ПЕРЕРОДИТЬСЯ',
+rebirthReward:'♻️ ПЕРЕРОЖДЕНИЕ! +50 💎',lang:'Язык',music:'🎵 Музыка',sounds:'🔊 Звуки',on:'ВКЛ',off:'ВЫКЛ',
+logo:'DOOM CLICK',spinCost:'Цена вращения',soundCategory:'Категория звука',clickSound:'Звук клика',mystery:'???',timePlayed:'Время в игре',totalCoins:'Всего заработано монет',
+bestClick:'Лучший клик',totalCrystals:'Всего получено кристаллов',activeCombo:'Текущая серия',
+bestCombo:'Лучшая серия',eventsDone:'Событий запущено',leaderboard:'ТАБЛИЦА ЛИДЕРОВ',tapToUpgrade:'Нажми, чтобы прокачать',levelWord:'ур.',
+seconds:'сек',minutes:'мин',hours:'ч',
+upg:[
+['💥','Сила клика','Увеличивает силу каждого клика.','+1 сила клика'],
+['🤖','Автокликер','Автоматически приносит монеты каждую секунду.','+1 монета/сек'],
+['💎','Магнит кристаллов','Повышает шанс получить кристалл при клике.','+5% к шансу кристалла'],
+['🎯','Критический удар','Даёт шанс на клик ×3.','+2% шанс крита'],
+['🔥','Мастер комбо','Усиливает награду за быстрые серии кликов.','+5% сила комбо'],
+['⏱️','Офлайн-буст','Увеличивает награду за время отсутствия.','+10% офлайн-бонус'],
+['🍀','Двигатель удачи','Ещё сильнее повышает шанс кристаллов.','+3% удача'],
+['⚡','Перегрузка Doom','Заряжает серию кликов и усиливает бонус комбо.','+10% сила комбо']
+],
+ach:{first:'Первый клик',hundred:'100 кликов',thousand:'1 000 кликов',tenk:'10 000 кликов',level10:'Уровень 10',
+level25:'Уровень 25',million:'Миллионер',reborn:'Первое перерождение',reborn5:'Пять перерождений',
+crystal100:'Охотник за кристаллами',wheel:'Счастливчик'},
+events:{
+double:['🔥 РАЗГРОМ DOOM','Каждый клик приносит ×2 монет во время события.'],
+crystal:['💎 КРИСТАЛЬНЫЙ ШТОРМ','Шанс получить кристалл значительно увеличен.'],
+bonus:['👹 НАГРАДА ДЕМОНА','Демон подарил большую денежную награду.'],
+gold:['🤑 ЗОЛОТОЙ ДОЖДЬ','Каждую секунду начисляется дополнительное золото.'],
+frenzy:['⚡ БЕЗУМИЕ КЛИКОВ','Сила клика временно увеличена в 5 раз.'],
+jackpot:['🎰 ДЖЕКПОТ-ЛИХОРАДКА','Клик может принести огромный денежный приз.'],
+meteor:['☄️ МЕТЕОРИТНЫЙ ДОЖДЬ','Метеоры дают дополнительные кристаллы.'],
+time:['⏳ ИСКАЖЕНИЕ ВРЕМЕНИ','Автодоход временно увеличен в 10 раз.'],
+treasure:['💰 ОХОТА ЗА СОКРОВИЩАМИ','Каждый клик может открыть ценный сундук.'],
+inferno:['🔥 РЕЖИМ ИНФЕРНО','Каждый клик дополнительно получает большой бонус.'],
+void:['🕳️ РАЗЛОМ ПУСТОТЫ','Монеты и кристаллы из разлома увеличены.']
+}},
+en:{
+upgrades:'Upgrades',bonuses:'Bonuses',progress:'Statistics',achievements:'Achievements',fortune:'Fortune Wheel',
+rebirth:'Rebirth',settings:'Settings',level:'LEVEL',click:'/ CLICK',auto:'AUTO',
+watch:'📺 Watch Video',videoReward:'Demo reward: +50 💎',clicks:'Clicks',levels:'Level',rebirths:'Rebirths',
+crystals:'Crystals',cost:'Cost',notEnough:'Not enough 💰',purchased:'✨ Upgrade purchased!',
+levelUp:'🎉 LEVEL UP! +5 💎',video:'📺 Video reward: +50 💎',need:'Need 100 💎',
+spin:'SPIN — 100 💎',won:'🎉 You won',rebirthTitle:'♻️ Rebirth',
+rebirthDesc:'Reset normal progress and gain a permanent earning bonus.',currentBonus:'Current bonus',
+nextCost:'Next rebirth cost',doRebirth:'REBIRTH',rebirthReward:'♻️ REBIRTH! +50 💎',lang:'Language',
+music:'🎵 Music',sounds:'🔊 Sounds',on:'ON',off:'OFF',logo:'DOOM CLICK',spinCost:'Spin cost',mystery:'???',
+timePlayed:'Time played',totalCoins:'Lifetime coins earned',bestClick:'Best click',totalCrystals:'Lifetime crystals',
+activeCombo:'Current streak',bestCombo:'Best streak',eventsDone:'Events triggered',leaderboard:'LEADERBOARD',tapToUpgrade:'Tap to upgrade',
+levelWord:'lvl.',seconds:'sec',minutes:'min',hours:'h',
+upg:[
+['💥','Click Power','Increases the power of every click.','+1 click power'],
+['🤖','Auto Clicker','Automatically earns coins every second.','+1 coin/sec'],
+['💎','Crystal Magnet','Raises the chance to find a crystal on click.','+5% crystal chance'],
+['🎯','Critical Strike','Adds a chance for a ×3 click.','+2% crit chance'],
+['🔥','Combo Master','Boosts rewards from fast click streaks.','+5% combo power'],
+['⏱️','Offline Boost','Increases rewards for time spent away.','+10% offline bonus'],
+['🍀','Luck Engine','Further increases the crystal drop chance.','+3% luck'],
+['⚡','Doom Overdrive','Charges your click streak and strengthens combo rewards.','+10% combo power']
+],
+ach:{first:'First Click',hundred:'100 Clicks',thousand:'1,000 Clicks',tenk:'10,000 Clicks',level10:'Level 10',
+level25:'Level 25',million:'Millionaire',reborn:'First Rebirth',reborn5:'Five Rebirths',
+crystal100:'Crystal Hunter',wheel:'Lucky One'},
+events:{
+double:['🔥 DOOM RUSH','Every click gives ×2 coins during the event.'],
+crystal:['💎 CRYSTAL STORM','Crystal drop chance is greatly increased.'],
+bonus:['👹 DEMON BOUNTY','The demon grants a huge coin reward.'],
+gold:['🤑 GOLDEN RAIN','Bonus gold is added every second.'],
+frenzy:['⚡ CLICK FRENZY','Click power is temporarily multiplied by 5.'],
+jackpot:['🎰 JACKPOT FEVER','A click can trigger a huge cash prize.'],
+meteor:['☄️ METEOR SHOWER','Meteors provide bonus crystals.'],
+time:['⏳ TIME WARP','Auto income is temporarily multiplied by 10.'],
+treasure:['💰 TREASURE HUNT','Every click can discover a valuable chest.'],
+inferno:['🔥 INFERNO MODE','Every click gets a powerful extra bonus.'],
+void:['🕳️ VOID RIFT','Coin and crystal rewards from the rift are increased.']
+}}
+};
+
+const UI={
+ ru:{
+  chooseDevice:'Выберите устройство', deviceSub:'Выберите версию игры для вашего экрана',pcLabel:'КОМПЬЮТЕР',phoneLabel:'ТЕЛЕФОН',desktop:'Компьютерная версия',phone:'Мобильная версия',
+  levelLabel:'УРОВЕНЬ',clickLabel:'ЗА КЛИК',autoLabel:'АВТО',perSecond:'сек',freeReward:'БЕСПЛАТНАЯ НАГРАДА',
+  leaderboard:'ТАБЛИЦА ЛИДЕРОВ',clicksTab:'КЛИКИ',coinsTab:'МОНЕТЫ',levelTab:'УРОВЕНЬ',
+  themes:'Оформление',daily:'Цели дня',watch:'📺 Смотреть видео',videoReward:'Демо-награда: +50 💎',
+  upgrades:'Улучшения',bonuses:'Бонусы',progress:'Статистика',
+  shopTitle:'🎨 Магазин оформления',shopDesc:'Только внешний вид. Не меняет силу, доход или шансы.',
+  owned:'КУПЛЕНО',active:'АКТИВНО',apply:'ПРИМЕНИТЬ',buy:'КУПИТЬ',free:'БЕСПЛАТНО',
+  goalsTitle:'🎯 Цели дня',goalsDesc:'Гарантированные награды за понятные задачи. Без ставок и потери ресурсов.',
+  claimed:'ПОЛУЧЕНО',claim:'ПОЛУЧИТЬ',locked:'ЗАКРЫТО',
+  soundGroups:{meme:'😂 Мемные',popular:'🔥 Популярные',calm:'🌿 Спокойные',extreme:'💀 Эпичные'},
+  sounds:{vine:'Вайн Бум',popcat:'Поп Кэт',bonk:'Бонк',error:'Ошибка Windows',bruh:'Брух',airhorn:'Воздушный гудок',coin:'Аркадная монета',hit:'Удар',laser:'Лазер',blip:'Ретро-сигнал',power:'Усиление',spark:'Электрическая искра',soft:'Мягкий тап',bubble:'Пузырёк',wood:'Дерево',glass:'Мягкое стекло',chime:'Нежный звон',bell:'Маленький колокольчик',bass:'Басовый дроп',explosion:'Мини-взрыв',shock:'Ударная волна',metal:'Металл',whoosh:'Быстрый свист',doom:'Пульс Doom'},
+  skins:{
+   classic:['Неон','Базовое неоновое оформление'],cyber:['Кибер-импульс','Холодный киберпанк'],inferno:['Инферно','Огненное оформление'],void:['Пустота','Тёмный космический стиль'],matrix:['Матрица','Цифровой зелёный стиль'],royal:['Королевский','Премиальный фиолетово-золотой стиль']
+  },
+  goals:{clicks:'Сделай 100 кликов',clicks2:'Сделай 500 кликов',coins:'Заработай 5 000 монет',crystals:'Получи 15 кристаллов',events:'Переживи случайное событие'},
+  wheelSub:'Выбери награду и испытай удачу',wheelHint:'🎁 Награда начисляется после полной остановки колеса',spin:'КРУТИТЬ',spinCost:'Цена вращения',coinsWord:'монет',crystalsWord:'кристаллов',
+  rebirthNow:'Сейчас бонуса ещё нет. После первого перерождения заработок увеличится на 10%.',
+  rebirthAll:'Ко всему заработку от кликов и авто-дохода.',rebirthNext:'Что даст следующее перерождение',
+  rebirthNextDesc:'Постоянный множитель дохода, который останется после сброса обычного прогресса. Все уровни улучшений и обычные монеты будут сброшены, но бонус перерождения сохранится.',
+  selectedSound:'Выбранный звук',play:'▶',choose:'✓',critical:'💥 КРИТИЧЕСКИЙ x3!',needWheel:'Нужно 100 💎',wonPrefix:'🎉 Вы выиграли ',offlineReward:'⏱️ Офлайн-награда: +',logoOnly:'только на английском',special:'ОСОБАЯ ОТМЕТКА',sale:'АКЦИЯ',limited:'УСПЕЙ!',newSale:'🔥 НОВАЯ АКЦИЯ! Скидки уже появились!'
+ },
+ en:{
+  chooseDevice:'Choose your device',deviceSub:'Choose the game version for your screen',pcLabel:'PC',phoneLabel:'PHONE',desktop:'Desktop version',phone:'Mobile version',
+  levelLabel:'LEVEL',clickLabel:'/ CLICK',autoLabel:'AUTO',perSecond:'sec',freeReward:'FREE REWARD',
+  leaderboard:'LEADERBOARD',clicksTab:'CLICKS',coinsTab:'COINS',levelTab:'LEVEL',
+  themes:'Themes',daily:'Daily Trials',watch:'📺 Watch Video',videoReward:'Demo reward: +50 💎',
+  upgrades:'Upgrades',bonuses:'Bonuses',progress:'Statistics',
+  shopTitle:'🎨 Interface Shop',shopDesc:'Cosmetic only. No effect on power, income or chances.',
+  owned:'OWNED',active:'ACTIVE',apply:'APPLY',buy:'BUY',free:'FREE',
+  goalsTitle:'🎯 Daily Trials',goalsDesc:'Guaranteed rewards for clear tasks. No betting or resource loss.',
+  claimed:'CLAIMED',claim:'CLAIM',locked:'LOCKED',
+  soundGroups:{meme:'😂 Meme',popular:'🔥 Popular',calm:'🌿 Calm',extreme:'💀 Extreme'},
+  sounds:{vine:'Vine Boom',popcat:'Pop Cat',bonk:'Bonk',error:'Windows Error',bruh:'Bruh',airhorn:'Air Horn',coin:'Arcade Coin',hit:'Impact Hit',laser:'Laser Zap',blip:'Retro Blip',power:'Power Up',spark:'Electric Spark',soft:'Soft Tap',bubble:'Bubble Pop',wood:'Wood Tap',glass:'Soft Glass',chime:'Gentle Chime',bell:'Small Bell',bass:'Bass Drop',explosion:'Mini Explosion',shock:'Shockwave',metal:'Metal Hit',whoosh:'Fast Whoosh',doom:'Doom Pulse'},
+  skins:{classic:['Neon','Basic neon theme'],cyber:['Cyber Pulse','Cold cyberpunk'],inferno:['Inferno','Fiery theme'],void:['Void','Dark cosmic style'],matrix:['Matrix','Digital green style'],royal:['Royal','Premium purple-and-gold style']},
+  goals:{clicks:'Make 100 clicks',clicks2:'Make 500 clicks',coins:'Earn 5,000 coins',crystals:'Get 15 crystals',events:'Survive a random event'},
+  wheelSub:'Pick a reward and test your luck',wheelHint:'🎁 Reward is granted when the wheel fully stops',spin:'SPIN',spinCost:'Spin cost',coinsWord:'coins',crystalsWord:'crystals',
+  rebirthNow:'There is no bonus yet. After the first rebirth, earnings increase by 10%.',
+  rebirthAll:'Applied to click and auto income.',rebirthNext:'What the next rebirth gives',
+  rebirthNextDesc:'A permanent income multiplier that remains after the normal progress reset. Upgrade levels and normal coins reset, but the rebirth bonus stays forever.',
+  selectedSound:'Selected sound',play:'▶',choose:'✓',critical:'💥 CRITICAL x3!',needWheel:'Need 100 💎',wonPrefix:'🎉 You won ',offlineReward:'⏱️ Offline reward: +',logoOnly:'English only',special:'SPECIAL MILESTONE',sale:'SALE',limited:'LIMITED TIME!',newSale:'🔥 NEW SALE! Discounts are live!'
+ }
+};
+function ui(k){return (UI[s.lang]||UI.en)[k]??k}
+function uiObj(group,k){return ((UI[s.lang]||UI.en)[group]||{})[k]??((UI.en[group]||{})[k]??k)}
+
+function tr(k){return (T[s.lang]||T.en)[k]??k}
+function fmt(n){return Math.floor(n).toLocaleString('en-US')}
+function fmtTime(sec){
+  sec=Math.max(0,Math.floor(sec)); const h=Math.floor(sec/3600), m=Math.floor((sec%3600)/60), ss=sec%60;
+  return h?`${h}${tr('hours')} ${m}${tr('minutes')}`:`${m}${tr('minutes')} ${ss}${tr('seconds')}`;
+}
+function toast(t){let e=document.getElementById('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1800)}
+const achNames={first:'first',hundred:'hundred',thousand:'thousand',tenk:'tenk',level10:'level10',level25:'level25',million:'million',reborn:'reborn',reborn5:'reborn5',crystal100:'crystal100',wheel:'wheel'};
+function applyStaticLocale(){
+  document.documentElement.lang=s.lang;document.body.classList.toggle('lang-ru',s.lang==='ru');document.body.classList.toggle('lang-en',s.lang==='en');
+  const set=(sel,key)=>{const e=document.querySelector(sel);if(e)e.textContent=ui(key)};
+  const setAll=(sel,key)=>document.querySelectorAll(sel).forEach(e=>e.textContent=ui(key));
+  set('[data-ui="chooseDevice"]','chooseDevice');set('[data-ui="deviceSub"]','deviceSub');
+  set('[data-ui="desktop"]','desktop');set('[data-ui="phone"]','phone');
+  set('[data-ui="upgrades"]','upgrades');set('[data-ui="bonuses"]','bonuses');set('[data-ui="progress"]','progress');
+  set('[data-ui="levelLabel"]','levelLabel');set('[data-ui="clickLabel"]','clickLabel');set('[data-ui="autoLabel"]','autoLabel');
+  set('[data-ui="achievements"]','achievements');set('[data-ui="fortune"]','fortune');set('[data-ui="rebirth"]','rebirth');
+  set('[data-ui="settings"]','settings');set('[data-ui="themes"]','themes');set('[data-ui="daily"]','daily');set('[data-ui="leaderboard"]','leaderboard');
+  setAll('.lbTab[data-cat="clicks"]','clicksTab');setAll('.lbTab[data-cat="coins"]','coinsTab');setAll('.lbTab[data-cat="level"]','levelTab');
+  const ad=document.querySelector('.adCard .upgrade');if(ad)ad.innerHTML=ui('watch')+'<small>'+ui('videoReward')+'</small>';
+  document.querySelectorAll('.actions .action.iconOnly').forEach((b,i)=>{
+    const keys=['achievements','fortune','rebirth','settings','themes','daily'];const k=keys[i];if(k){b.setAttribute('aria-label',ui(k));b.title=ui(k)}
+  });
+  const sale=document.querySelector('.adCard:before');
+  const lb=document.querySelector('.leaderboardBtn span');if(lb)lb.textContent=ui('leaderboard');
+  document.querySelectorAll('[data-ui]').forEach(e=>{const k=e.getAttribute('data-ui');if(UI[s.lang]?.[k]!==undefined)e.textContent=ui(k)});
+}
+function upgradeInfo(i){
+  const u=T[s.lang].upg[i]||T.en.upg[i];
+  return {icon:u[0],name:u[1],desc:u[2],effect:u[3]};
+}
+function updateCircleByLevel(){
+  const stage=document.body;
+  for(let i=1;i<=10;i++)stage.classList.remove('stage'+i);
+  stage.classList.add('stage'+Math.min(10,Math.max(1,s.level)));
+  const c=document.getElementById('clickTarget');
+  if(!c)return;
+  for(let i=1;i<=10;i++)c.classList.remove('level'+i);
+  c.classList.add('level'+Math.min(10,Math.max(1,s.level)));
+}
+function renderSaleBox(){
+ const box=document.getElementById('saleTicker'); const track=document.getElementById('saleTickerTrack'); if(!box||!track)return;
+ const now=Date.now(),active=(s.saleOffers||[]).filter(x=>x.until>now);
+ if(!active.length){box.style.display='none';return}
+ box.style.display='block';
+ const names=active.map(o=>{if(o.id==='wheel')return '🎡 '+ui('fortune'); if(o.id.startsWith('skin:')){const sk=uiObj('skins',o.id.slice(5));return '🎨 '+sk[0].toUpperCase();} return '⚡ '+(upgradeInfo(+o.id.slice(4)).name||'UPGRADE').toUpperCase()});
+ const best=Math.max(1,...active.map(x=>x.discount||0));
+ const text='🔥 '+ui('sale')+': '+names.join('  •  ')+'  •  -'+best+'%  •  '+ui('limited');
+ const key=active.map(x=>x.id+':'+x.discount).join('|')+'|'+s.lang;
+ if(track.dataset.saleKey!==key){
+   track.dataset.saleKey=key;
+   track.textContent=text;
+   track.style.animation='none';
+   void track.offsetWidth;
+   track.style.animation='tickerMove 20s linear infinite';
+ }
+}
+function setLeaderboardCategory(cat){s.lbCategory=cat;document.querySelectorAll('.lbTab').forEach(b=>b.classList.toggle('active',b.dataset.cat===cat));renderLeaderboard()}
+function renderLeaderboard(){const el=document.getElementById('leaderboardList');if(!el)return;const cat=s.lbCategory||'clicks';const base=[['YOU',cat==='clicks'?s.clicks:cat==='coins'?s.lifetimeCoins:s.level],['DOOM_MASTER',Math.max(120,s.clicks*1.12),Math.max(5000,s.lifetimeCoins*1.08),Math.max(12,s.level+3)],['VOID_KING',Math.max(90,s.clicks*.86),Math.max(4200,s.lifetimeCoins*.91),Math.max(10,s.level+2)],['NIGHTMARE',Math.max(70,s.clicks*.64),Math.max(3200,s.lifetimeCoins*.7),Math.max(8,s.level+1)],['CYBER_DEMON',Math.max(50,s.clicks*.48),Math.max(2200,s.lifetimeCoins*.5),Math.max(7,s.level)],['HELLBORN',Math.max(30,s.clicks*.32),Math.max(1400,s.lifetimeCoins*.34),Math.max(5,s.level-1)],['CLICK_REAPER',Math.max(20,s.clicks*.21),Math.max(900,s.lifetimeCoins*.22),Math.max(4,s.level-2)]];const rows=base.map((x,i)=>({name:x[0],value:cat==='clicks'?x[1]:cat==='coins'?x[2]:x[3]})).sort((a,b)=>b.value-a.value);el.innerHTML=rows.map((r,i)=>`<div class="lbRow"><span class="lbRank">#${i+1}</span><span class="lbName">${r.name}</span><span class="lbValue">${fmt(r.value)}</span></div>`).join('')}
+
+function render(){
+  renderSaleBox();
+  applyStaticLocale();
+  updateCircleByLevel();
+  coins.textContent=fmt(s.coins); crystals.textContent=fmt(s.crystals); rebirth.textContent=s.rebirth;
+  level.textContent=s.level;
+  const rebirthMult=1+s.rebirth*.1;
+  power.textContent=fmt(getClickPower());
+  auto.textContent=fmt(getAutoPower());
+  fill.style.width=Math.min(100,s.xp/levelNeed()*100)+'%';
+  document.querySelector('.level').firstChild.textContent=tr('level')+' ';
+  document.querySelector('.big').innerHTML=`<span id="power">${fmt(getClickPower())}</span> ${tr('click')}`;
+  document.querySelector('.sub').innerHTML=`${tr('auto')}: <span id="auto">${fmt(getAutoPower())}</span>/${ui('perSecond')}`;
+  upgrades.innerHTML=A.map((a,i)=>{
+    const u=upgradeInfo(i), lvl=s.upgrades[i]||0, baseCost=upgradeCost(i), cost=discounted(baseCost,'upg:'+i), d=saleDiscount('upg:'+i);
+    const effect=u.effect;
+    return `<button class="upgrade ${d?'saleActive':''}" onclick="buy(${i})"><b>${u.icon} ${u.name}${d?saleText('upg:'+i):''}</b><small>${u.desc}</small><small>${effect} · ${tr('levelWord')} ${lvl} · ${d?`<span style="text-decoration:line-through;opacity:.55">${fmt(baseCost)} 💰</span> ${fmt(cost)} 💰`:tr('cost')+' '+fmt(cost)+' 💰'}</small></button>`;
+  }).join('');
+  progress.innerHTML=[
+    `${tr('clicks')}: <b>${fmt(s.clicks)}</b>`,
+    `${tr('levels')}: <b>${s.level}</b>`,
+    `${tr('rebirths')}: <b>${s.rebirth}</b>`,
+    `${tr('crystals')}: <b>${fmt(s.crystals)}</b>`,
+    `${tr('timePlayed')}: <b>${fmtTime(s.timePlayed+(Date.now()-s.lastSeen)/1000)}</b>`,
+    `${tr('totalCoins')}: <b>${fmt(s.lifetimeCoins)}</b>`,
+    `${tr('bestClick')}: <b>${fmt(s.bestClick)}</b>`,
+    `${tr('totalCrystals')}: <b>${fmt(s.lifetimeCrystals)}</b>`,
+    `${tr('activeCombo')}: <b>${s.combo}</b>`,
+    `${tr('bestCombo')}: <b>${s.comboPeak}</b>`,
+    `${tr('eventsDone')}: <b>${s.events}</b>`
+  ].join('<br>');
+}
+function levelNeed(){return 50+s.level*35}
+function getClickPower(){
+  let comboMult=1+(s.combo||0)*0.005*(1+(s.comboPower||0));
+  let gain=s.power*(1+s.rebirth*.1)*comboMult;
+  if(activeEvent==='double')gain*=2;
+  if(activeEvent==='frenzy'||activeEvent==='inferno')gain*=5;
+  if(activeEvent==='void')gain*=2;
+  return gain;
+}
+function getAutoPower(){
+  let mult=1+s.rebirth*.1;
+  if(activeEvent==='time')mult*=10;
+  if(activeEvent==='gold')mult*=2;
+  return s.auto*mult;
+}
+function addCoins(n){
+  s.coins+=n;s.lifetimeCoins+=n;s.bestClick=Math.max(s.bestClick,n);s.goalStats.coins+=Math.max(0,n);
+}
+function addCrystals(n){
+  s.crystals+=n;s.lifetimeCrystals+=n;s.goalStats.crystals+=Math.max(0,n);
+}
+function clickGame(x,y){
+  playClickSound();
+  const now=Date.now();
+  const gap=now-(s.lastClickAt||0);
+  s.lastClickAt=now;
+  s.combo=gap<1200?Math.min((s.combo||0)+1,100):1;
+  s.comboPeak=Math.max(s.comboPeak,s.combo);
+  let gain=getClickPower();
+  if(Math.random()<(s.crit||0)){gain*=3;toast(ui('critical'));criticalFx()}
+  if(activeEvent==='jackpot'&&Math.random()<.08){const prize=Math.max(100,getClickPower()*50);addCoins(prize);toast('🎰 +'+fmt(prize)+' 💰 '+ui('coinsWord'))}
+  if(activeEvent==='treasure'&&Math.random()<.12){const prize=Math.max(50,getClickPower()*20);addCoins(prize);toast('💰 +'+fmt(prize)+' 💰 '+ui('coinsWord'))}
+  if(activeEvent==='inferno')addCoins(s.power*5);
+  if(activeEvent==='void')addCoins(s.power*2);
+  addCoins(gain);s.clicks++;s.goalStats.clicks++;s.xp+=gain;
+  let crystalChance=.01+(s.luck||0)+(s.upgrades[2]||0)*.005;
+  if(activeEvent==='crystal'||activeEvent==='meteor')crystalChance+=.15;
+  if(activeEvent==='void')crystalChance+=.08;
+  if(Math.random()<crystalChance)addCrystals(1);
+  checkAchievements();
+  checkClickMilestones(s.clicks);
+  while(s.xp>=levelNeed()){s.xp-=levelNeed();s.level++;addCrystals(5);levelUp()}
+  showFloat('+'+fmt(gain),x,y);render();save()
+}
+function spawnFx(className,duration=1000){const e=document.createElement('div');e.className=className;document.body.appendChild(e);setTimeout(()=>e.remove(),duration)}
+function criticalFx(){spawnFx('burst',800);document.body.animate([{filter:'brightness(1)'},{filter:'brightness(1.7) saturate(1.5)'},{filter:'brightness(1)'}],280)}
+function milestoneLabel(n){
+  const ru=s.lang==='ru';
+  if(n===666)return ru?'😈 666 КЛИКОВ':'😈 666 CLICKS';
+  if(n===100)return ru?'💯 100 КЛИКОВ':'💯 100 CLICKS';
+  if(n===1000)return ru?'🔥 1 000 КЛИКОВ':'🔥 1,000 CLICKS';
+  if(n===10000)return ru?'☠️ 10 000 КЛИКОВ':'☠️ 10,000 CLICKS';
+  if(n===50000)return ru?'👑 50 000 КЛИКОВ':'👑 50,000 CLICKS';
+  if(n===100000)return ru?'💀 100 000 КЛИКОВ':'💀 100,000 CLICKS';
+  return '⚡ '+fmt(n)+' '+(ru?'КЛИКОВ':'CLICKS');
+}
+function checkClickMilestones(n){
+  const milestones=[100,666,1000,5000,10000,25000,50000,100000,250000,500000,1000000];
+  milestones.forEach(m=>{
+    if(n===m&&!s.milestones[m]){s.milestones[m]=1;const text=milestoneLabel(m);spawnFx('milestoneFlash',800);const b=document.createElement('div');b.className='milestoneText';b.innerHTML=text+'<small>'+ ui('special') +'</small>';document.body.appendChild(b);setTimeout(()=>b.remove(),1400);burstSound();addCrystals(Math.min(25,Math.max(3,Math.floor(m/1000)+3)));toast('💎 +'+Math.min(25,Math.max(3,Math.floor(m/1000)+3))+' 💎');}
+  });
+}
+function burstSound(){if(!s.sfx)return;try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;if(!window.__audioCtx)window.__audioCtx=new AC();const c=window.__audioCtx,o=c.createOscillator(),g=c.createGain(),now=c.currentTime;o.type='sawtooth';o.frequency.setValueAtTime(180,now);o.frequency.exponentialRampToValueAtTime(900,now+.35);g.gain.setValueAtTime(.0001,now);g.gain.exponentialRampToValueAtTime(.12,now+.03);g.gain.exponentialRampToValueAtTime(.0001,now+.42);o.connect(g);g.connect(c.destination);o.start(now);o.stop(now+.45)}catch(e){}}
+clickTarget.addEventListener('pointerdown',e=>{e.preventDefault();clickTarget.classList.add('hit');setTimeout(()=>clickTarget.classList.remove('hit'),80);let r=clickTarget.getBoundingClientRect();clickGame(e.clientX-r.left,e.clientY-r.top)});
+function levelUp(){
+  spawnFx('levelUpFx',950);spawnFx('burst',850);burstSound();
+  const b=document.createElement('div');b.className='milestoneText';b.innerHTML='🎉 '+tr('levelUp')+'<small>'+tr('level')+' '+s.level+'</small>';document.body.appendChild(b);setTimeout(()=>b.remove(),1400);
+  toast(tr('levelUp'));document.body.animate([{filter:'brightness(1)'},{filter:'brightness(1.9) saturate(1.4)'},{filter:'brightness(1)'}],650)
+}
+function buy(i){
+  let a=A[i],lvl=s.upgrades[i]||0,baseCost=upgradeCost(i),cost=discounted(baseCost,'upg:'+i);
+  if(s.coins<cost){toast(tr('notEnough'));return}
+  s.coins-=cost;s.upgrades[i]=lvl+1;
+  if(i===0)s.power+=1;
+  if(i===1)s.auto+=1;
+  if(i===2){}
+  if(i===3)s.crit=Math.min(.5,(s.crit||0)+.02);
+  if(i===4)s.comboPower=(s.comboPower||0)+.05;
+  if(i===5)s.offline=Math.min(3,(s.offline||0)+.10);
+  if(i===6)s.luck=Math.min(.5,(s.luck||0)+.03);
+  if(i===7)s.comboPower=(s.comboPower||0)+.10;
+  toast(tr('purchased'));render();save()
+}
+let activeEvent=null,eventTimer=0,eventNextAt=Date.now()+45000+Math.random()*45000;
+const EVENT_KEYS=Object.keys(T.en.events);
+function scheduleNextEvent(){
+  eventNextAt=Date.now()+(45000+Math.random()*90000);
+}
+function startRandomEvent(){
+  if(eventTimer>0)return;
+  const key=EVENT_KEYS[Math.floor(Math.random()*EVENT_KEYS.length)];
+  activeEvent=key;
+  eventTimer=Math.floor(20+Math.random()*30);
+  s.events++;s.goalStats.events++;
+  eventBox.style.display='block';
+  updateEventBox();
+  if(key==='bonus'){const prize=Math.max(250,getClickPower()*100);addCoins(prize);toast('👹 +'+fmt(prize)+' 💰 '+ui('coinsWord'))}
+  if(key==='meteor'){addCrystals(10);toast('☄️ +10 💎 '+ui('crystalsWord'))}
+  if(key==='void'){addCrystals(5);toast('🕳️ +5 💎 '+ui('crystalsWord'))}
+  scheduleNextEvent();
+  render();save();
+}
+function updateEventBox(){
+  if(!activeEvent){eventBox.style.display='none';return}
+  const data=(T[s.lang].events[activeEvent]||T.en.events[activeEvent]);
+  eventBox.innerHTML=`<b>${data[0]}</b>${data[1]} · <span id="eventTime">${eventTimer}</span> ${tr('seconds')}`;
+}
+setInterval(()=>{
+  const now=Date.now();
+  if(eventTimer>0){eventTimer--;updateEventBox();if(eventTimer<=0){activeEvent=null;eventBox.style.display='none';scheduleNextEvent();}}
+  else if(now>=eventNextAt)startRandomEvent();
+  updateSales();
+  render();
+},1000);
+setInterval(()=>{
+  if(s.auto){
+    const gain=getAutoPower();
+    addCoins(gain);s.xp+=gain;
+    if(activeEvent==='gold')addCoins(s.auto*3);
+    while(s.xp>=levelNeed()){s.xp-=levelNeed();s.level++;addCrystals(5);levelUp()}
+    render();save();
+  }
+},1000);
+setInterval(()=>{
+  const now=Date.now(),delta=Math.max(0,now-(s.lastSeen||now));
+  s.timePlayed+=delta/1000;s.lastSeen=now;save();
+  render();
+},5000);
+function claimAd(){addCrystals(50);toast(tr('video'));save();render()}
+function openModal(type){modal.classList.add('open');if(type==='achievements')showAchievements();if(type==='wheel')showWheel();if(type==='rebirth')showRebirth();if(type==='settings')showSettings();if(type==='shop')showShop();if(type==='goals')showGoals()}
+function closeModal(){modal.classList.remove('open')}
+function checkAchievements(){
+  achievements.forEach(a=>{
+    if(!s.ach[a[0]] && (s[a[3]]||0)>=a[2]){
+      s.ach[a[0]]=1;addCrystals(a[5]);toast('🏆 '+(T[s.lang].ach[a[0]]||a[1])+' +'+a[5]+' 💎');save();
+    }
+  });
+}
+function showAchievements(){
+  modalContent.innerHTML='<h1>🏆 '+tr('achievements')+'</h1>'+achievements.map(a=>{
+    const val=s[a[3]]||0,done=val>=a[2],name=T[s.lang].ach[a[0]]||a[1];
+    return `<div class="achievement ${done?'':'locked'}"><span>${done?'🏆':'🔒'} ${done?name:tr('mystery')}</span><b>${done?'+'+a[5]+' 💎':tr('mystery')}</b></div>`;
+  }).join('');
+}
+
+const FORTUNE_PRIZES=[
+  {amount:10,type:'coins'},
+  {amount:5,type:'crystals'},
+  {amount:50,type:'coins'},
+  {amount:10,type:'crystals'},
+  {amount:250,type:'coins'},
+  {amount:25,type:'crystals'},
+  {amount:1000,type:'coins'},
+  {amount:100,type:'crystals'}
+];
+const FORTUNE_COLORS=['#ff3f9d','#32dfff','#713dff','#18e0a8','#ffb52f','#9d4cff','#ff5b5b','#24d9ff'];
+let fortuneRotation=0;
+let fortuneSpinning=false;
+let fortuneTimer=null;
+
+function showWheel(){
+  const cost=100;
+  const sectors=FORTUNE_PRIZES.map((prize,i)=>{
+    const icon=prize.type==='crystals'?'💎':'💰';
+    const label=prize.type==='crystals'?ui('crystalsWord'):ui('coinsWord');
+    return `<div class="fortuneSector" style="--mid:${i*45+22.5}deg"><span class="fortuneSectorIcon">${icon}</span><b>${fmt(prize.amount)}</b><small>${label}</small></div>`;
+  }).join('');
+  modalContent.innerHTML=`
+    <div class="fortuneHead"><h1>🎡 ${tr('fortune')}</h1><div class="fortuneBalance">💎 ${fmt(s.crystals)}</div></div>
+    <p class="fortuneCost">${tr('spinCost')}: <strong>${cost} 💎</strong></p>
+    <div class="wheelStage">
+      <div class="pointer"></div>
+      <div id="fortuneWheel" class="wheel fortuneWheel">
+        <div class="fortuneDisc">${sectors}</div>
+        <div class="wheelRing"></div>
+        <div class="wheelCenter"><span>🎡</span><small>${ui('spin')}</small></div>
+      </div>
+    </div>
+    <div class="wheelLegend">${FORTUNE_PRIZES.map((prize,i)=>{const icon=prize.type==='crystals'?'💎':'💰';const label=prize.type==='crystals'?ui('crystalsWord'):ui('coinsWord');return `<span><i style="background:${FORTUNE_COLORS[i]}"></i><b>${fmt(prize.amount)}</b> ${icon} ${label}</span>`}).join('')}</div>
+    <div class="fortuneHint">${ui('wheelHint')}</div>
+    <button id="spinWheelBtn" class="action fortuneSpin" type="button" ${fortuneSpinning?'disabled':''}>${ui('spin')} — ${cost} 💎</button>`;
+  const btn=document.getElementById('spinWheelBtn');
+  if(btn)btn.addEventListener('click',spin,{once:false});
+}
+function spin(){
+  if(fortuneSpinning)return;
+  const cost=100;
+  const wheel=document.getElementById('fortuneWheel');
+  const btn=document.getElementById('spinWheelBtn');
+  if(!wheel||!btn)return;
+  if(s.crystals<cost){toast(ui('needWheel'));return;}
+  fortuneSpinning=true;
+  btn.disabled=true;
+  s.crystals-=cost;
+  const prizeIndex=Math.floor(Math.random()*FORTUNE_PRIZES.length);
+  const prize=FORTUNE_PRIZES[prizeIndex];
+  const center=prizeIndex*45+22.5;
+  const current=((fortuneRotation%360)+360)%360;
+  const target=(360-center+360)%360;
+  let delta=(target-current+360)%360;
+  if(delta<180)delta+=360;
+  fortuneRotation+=(4+Math.floor(Math.random()*3))*360+delta;
+  wheel.style.transform=`rotate(${fortuneRotation}deg)`;
+  save();
+  render();
+  clearTimeout(fortuneTimer);
+  fortuneTimer=setTimeout(()=>{
+    if(prize.type==='crystals') addCrystals(prize.amount); else addCoins(prize.amount);
+    s.wheel++;
+    checkAchievements();
+    fortuneSpinning=false;
+    const icon=prize.type==='crystals'?'💎':'💰';
+    const label=prize.type==='crystals'?ui('crystalsWord'):ui('coinsWord');
+    toast(ui('wonPrefix')+fmt(prize.amount)+' '+icon+' '+label+'!');
+    save();
+    render();
+    showWheel();
+    fortuneRotation=0;
+  },2850);
+}
+
+function openWheel(ev){
+  if(ev){ev.preventDefault();ev.stopPropagation();}
+  const modalEl=document.getElementById('modal');
+  const contentEl=document.getElementById('modalContent');
+  if(!modalEl||!contentEl)return;
+  modalEl.classList.add('open');
+  showWheel();
+}
+
+function showRebirth(){
+  let cost=10000*(s.rebirth+1), nextBonus=(s.rebirth+1)*10;
+  modalContent.innerHTML=`<h1>${tr('rebirthTitle')}</h1>
+  <p>${tr('rebirthDesc')}</p>
+  <div class="rebirthCard">
+    <b>${tr('currentBonus')}</b>
+    <strong>+${s.rebirth*10}%</strong>
+    <small>${s.rebirth===0?ui('rebirthNow'):ui('rebirthAll')}</small>
+  </div>
+  <div class="rebirthCard next">
+    <b>${ui('rebirthNext')}</b>
+    <strong>+${nextBonus}%</strong>
+    <small>${ui('rebirthNextDesc')}</small>
+  </div>
+  <p>${tr('nextCost')}: <b>${fmt(cost)} 💰</b></p>
+  <button class="action" onclick="doRebirth(${cost})">${tr('doRebirth')}</button>`;
+}
+function doRebirth(cost){
+  if(s.coins<cost){toast(tr('notEnough'));return}
+  s.rebirth++;s.coins=0;s.power=1;s.auto=0;s.level=1;s.xp=0;s.combo=0;
+  s.upgrades=[0,0,0,0,0,0,0,0];s.crit=0;s.luck=0;s.comboPower=0;s.offline=0;
+  addCrystals(50);checkAchievements();toast(tr('rebirthReward'));save();render();closeModal()
+}
+function showSettings(){
+ const groups=[['meme','meme'],['popular','popular'],['calm','calm'],['extreme','extreme']];
+ const list=groups.map(([g,key])=>`<div class="soundGroup"><h3>${uiObj('soundGroups',key)}</h3>`+CLICK_SOUNDS[g].map(([id,name])=>`<div class="soundOption ${s.clickSound===id?'selected':''}"><span>${uiObj('sounds',id)}</span><button class="soundMiniBtn" onclick="previewSoundById('${id}')">${ui('play')}</button><button class="soundMiniBtn choose" onclick="s.clickSound='${id}';save();showSettings()">${ui('choose')}</button></div>`).join('')+'</div>').join('');
+ modalContent.innerHTML=`<h1>⚙️ ${tr('settings')}</h1>
+ <label>${tr('lang')}</label><select onchange="s.lang=this.value;save();render();showSettings();updateEventBox()"><option value="ru" ${s.lang==='ru'?'selected':''}>Русский</option><option value="en" ${s.lang==='en'?'selected':''}>English</option></select>
+ <p class="soundPreview">${ui('selectedSound')}: <b>${uiObj('sounds',s.clickSound)}</b></p>${list}
+ <button class="upgrade" onclick="s.music=!s.music;save();showSettings()">${tr('music')}: ${s.music?tr('on'):tr('off')}</button>
+ <button class="upgrade" onclick="s.sfx=!s.sfx;save();showSettings()">${tr('sounds')}: ${s.sfx?tr('on'):tr('off')}</button><p>${tr('logo')} — ${ui('logoOnly')}.</p>`;
+}
+applySkin();render();applyStaticLocale();if(pendingOfflineReward>0){toast(ui('offlineReward')+fmt(pendingOfflineReward)+' 💰');save()}
+</script>
+</body></html>
